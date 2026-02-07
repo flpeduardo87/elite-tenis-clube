@@ -3,28 +3,30 @@ import { supabase } from '../supabaseClient';
 import { isValidCPF } from '../src/utils';
 
 export const AuthPage: React.FC = () => {
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [mode, setMode] = useState<'login' | 'register'>('login');
     
     // Campos de login
     const [cpf, setCpf] = useState('');
     const [password, setPassword] = useState('');
     
-    // Campos adicionais de cadastro
-    const [name, setName] = useState('');
+    // Campos de cadastro
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
+    const [registerPassword, setRegisterPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     
     const formatCPF = (value: string) => {
-      return value
-          .replace(/\D/g, '')
-          .replace(/(\d{3})(\d)/, '$1.$2')
-          .replace(/(\d{3})(\d)/, '$1.$2')
-          .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-          .substring(0, 14);
+        return value
+            .replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+            .substring(0, 14);
     };
 
     const formatPhone = (value: string) => {
@@ -38,14 +40,14 @@ export const AuthPage: React.FC = () => {
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         setError('');
-        setSuccess('');
-        setLoading(true);
+        setSuccessMessage('');
+        setIsLoading(true);
     
         const cpfNumbers = cpf.replace(/\D/g, '');
         
         if (!isValidCPF(cpfNumbers)) {
             setError('CPF inválido.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
         
@@ -60,14 +62,14 @@ export const AuthPage: React.FC = () => {
             setError('CPF ou senha inválidos. Verifique os dados e tente novamente.');
         }
         
-        setLoading(false);
+        setIsLoading(false);
     };
     
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault();
         setError('');
-        setSuccess('');
-        setLoading(true);
+        setSuccessMessage('');
+        setIsLoading(true);
     
         const cpfNumbers = cpf.replace(/\D/g, '');
         const phoneNumbers = phone.replace(/\D/g, '');
@@ -75,31 +77,37 @@ export const AuthPage: React.FC = () => {
         // Validações
         if (!isValidCPF(cpfNumbers)) {
             setError('CPF inválido.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
         
-        if (name.trim().length < 3) {
-            setError('Nome deve ter pelo menos 3 caracteres.');
-            setLoading(false);
+        if (firstName.trim().length < 2) {
+            setError('Nome deve ter pelo menos 2 caracteres.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (lastName.trim().length < 2) {
+            setError('Sobrenome deve ter pelo menos 2 caracteres.');
+            setIsLoading(false);
             return;
         }
         
         if (phoneNumbers.length < 10) {
             setError('Telefone inválido.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
         
-        if (password.length < 6) {
+        if (registerPassword.length < 6) {
             setError('Senha deve ter pelo menos 6 caracteres.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
         
-        if (password !== confirmPassword) {
+        if (registerPassword !== confirmPassword) {
             setError('As senhas não coincidem.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
         
@@ -113,7 +121,7 @@ export const AuthPage: React.FC = () => {
             
             if (existingProfile) {
                 setError('CPF já cadastrado. Faça login ou recupere sua senha.');
-                setLoading(false);
+                setIsLoading(false);
                 return;
             }
             
@@ -122,18 +130,18 @@ export const AuthPage: React.FC = () => {
             // Criar usuário no Supabase Auth
             const { data: authData, error: signUpError } = await supabase.auth.signUp({
                 email: email,
-                password: password,
+                password: registerPassword,
             });
             
             if (signUpError) {
                 setError('Erro ao criar conta: ' + signUpError.message);
-                setLoading(false);
+                setIsLoading(false);
                 return;
             }
             
             if (!authData.user) {
                 setError('Erro ao criar usuário.');
-                setLoading(false);
+                setIsLoading(false);
                 return;
             }
             
@@ -143,7 +151,8 @@ export const AuthPage: React.FC = () => {
                 .insert({
                     id: authData.user.id,
                     cpf: cpfNumbers,
-                    name: name.trim(),
+                    first_name: firstName.trim(),
+                    last_name: lastName.trim(),
                     phone: phoneNumbers,
                     roles: ['member'],
                     is_blocked: false,
@@ -152,17 +161,17 @@ export const AuthPage: React.FC = () => {
             
             if (profileError) {
                 setError('Erro ao criar perfil: ' + profileError.message);
-                setLoading(false);
+                setIsLoading(false);
                 return;
             }
             
-            setSuccess('Cadastro realizado com sucesso! Você será conectado automaticamente.');
+            setSuccessMessage('Cadastro realizado com sucesso! Você será conectado automaticamente.');
             
             // Auto-login
             setTimeout(async () => {
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email: email,
-                    password: password,
+                    password: registerPassword,
                 });
                 
                 if (signInError) {
@@ -174,219 +183,251 @@ export const AuthPage: React.FC = () => {
             setError('Erro inesperado: ' + err.message);
         }
         
-        setLoading(false);
+        setIsLoading(false);
     };
-    
-    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCpf(formatCPF(e.target.value));
-    };
-    
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPhone(formatPhone(e.target.value));
-    };
-    
+
     const switchMode = () => {
         setMode(mode === 'login' ? 'register' : 'login');
         setError('');
-        setSuccess('');
+        setSuccessMessage('');
+        setCpf('');
+        setPassword('');
+        setFirstName('');
+        setLastName('');
+        setPhone('');
+        setRegisterPassword('');
+        setConfirmPassword('');
     };
 
-
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-[#F3F4F6] p-2">
-            <div className="w-full max-w-md">
-                <header className="text-center mb-3">
-                    <div className="mb-1.5 flex justify-center">
+        <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center p-4 overflow-hidden">
+            {/* Left Side - Brand (Desktop Only) */}
+            <div className="hidden lg:flex w-1/2 flex-col items-center justify-center pr-8">
+                <div className="max-w-sm text-center">
+                    <div className="mb-6">
                         <img 
                             src="/logo-elite.png" 
                             alt="Canoinhas Tênis Clube" 
-                            className="w-10 h-10 object-contain"
+                            className="w-28 h-28 object-contain mx-auto drop-shadow-lg"
                         />
                     </div>
-                    <h1 className="text-lg font-extrabold tracking-tight text-gray-800">
-                       Canoinhas Tênis Clube
+                    <h1 className="text-5xl font-bold text-gray-800 mb-2">
+                        Canoinhas
                     </h1>
-                    <p className="text-xs text-gray-600 font-medium">
-                        {mode === 'login' ? 'Entre com sua conta' : 'Crie sua conta'}
+                    <p className="text-xl text-gray-600 mb-4 font-semibold">
+                        Tênis Clube
                     </p>
-                </header>
-
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                    {mode === 'login' ? (
-                        <form onSubmit={handleLogin} className="space-y-3">
-                            <div>
-                                <label htmlFor="cpf" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    CPF
-                                </label>
-                                <input
-                                    id="cpf"
-                                    name="cpf"
-                                    type="text"
-                                    value={cpf}
-                                    onChange={handleCpfChange}
-                                    placeholder="000.000.000-00"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="password" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Senha
-                                </label>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Digite sua senha"
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                                    {error}
-                                </div>
-                            )}
-                            
-                            {success && (
-                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
-                                    {success}
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-brand-primary to-rose-600 hover:from-brand-primary hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                            >
-                                {loading ? 'Entrando...' : 'Entrar'}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleRegister} className="space-y-2">
-                            <div>
-                                <label htmlFor="register-name" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Nome Completo
-                                </label>
-                                <input
-                                    id="register-name"
-                                    name="name"
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Seu nome completo"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-                            
-                            <div>
-                                <label htmlFor="register-cpf" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    CPF
-                                </label>
-                                <input
-                                    id="register-cpf"
-                                    name="cpf"
-                                    type="text"
-                                    value={cpf}
-                                    onChange={handleCpfChange}
-                                    placeholder="000.000.000-00"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-                            
-                            <div>
-                                <label htmlFor="register-phone" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Telefone
-                                </label>
-                                <input
-                                    id="register-phone"
-                                    name="phone"
-                                    type="text"
-                                    value={phone}
-                                    onChange={handlePhoneChange}
-                                    placeholder="(00) 00000-0000"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="register-password" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Senha
-                                </label>
-                                <input
-                                    id="register-password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Mínimo 6 caracteres"
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-                            
-                            <div>
-                                <label htmlFor="register-confirm-password" className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Confirmar Senha
-                                </label>
-                                <input
-                                    id="register-confirm-password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    required
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="Digite a senha novamente"
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm transition-all"
-                                />
-                            </div>
-
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                                    {error}
-                                </div>
-                            )}
-                            
-                            {success && (
-                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
-                                    {success}
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-brand-primary to-rose-600 hover:from-brand-primary hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                            >
-                                {loading ? 'Criando conta...' : 'Criar conta'}
-                            </button>
-                        </form>
-                    )}
-
-                    <div className="mt-2 text-center">
-                        <button
-                            onClick={switchMode}
-                            disabled={loading}
-                            className="text-xs font-medium text-brand-primary hover:text-emerald-700 transition-colors disabled:opacity-50"
-                        >
-                            {mode === 'login' ? (
-                                <>Não tem conta? <span className="underline">Cadastre-se aqui</span></>
-                            ) : (
-                                <>Já tem conta? <span className="underline">Faça login</span></>
-                            )}
-                        </button>
+                    <p className="text-sm text-gray-500 mb-8">
+                        Sistema de Reserva de Quadras
+                    </p>
+                    <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-200">
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                            Gerencie suas reservas de quadras de forma simples e eficiente. Acesse a plataforma com seu CPF e senha.
+                        </p>
                     </div>
                 </div>
-                
-                <div className="mt-2 text-center text-xs text-gray-400">
-                    <p>Sistema v1.0</p>
+            </div>
+
+            {/* Right Side - Login Form */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center">
+                <div className="w-full max-w-sm">
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden text-center mb-7">
+                        <img 
+                            src="/logo-elite.png" 
+                            alt="Canoinhas Tênis Clube" 
+                            className="w-16 h-16 object-contain mx-auto mb-3"
+                        />
+                        <h1 className="text-2xl font-bold text-gray-800">Canoinhas</h1>
+                        <p className="text-gray-600 text-sm">Tênis Clube</p>
+                    </div>
+
+                    {/* Form Card */}
+                    <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+                        {/* Header */}
+                        <div className="mb-7">
+                            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                                {mode === 'login' ? 'Bem-vindo de volta' : 'Criar Conta'}
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                                {mode === 'login' 
+                                    ? 'Acesse sua conta com CPF e senha' 
+                                    : 'Preencha os dados para se cadastrar'}
+                            </p>
+                        </div>
+
+                        {/* Messages */}
+                        {error && (
+                            <div className="mb-5 p-4 bg-red-50 border border-red-300 rounded-xl">
+                                <p className="text-sm text-red-700 font-medium">{error}</p>
+                            </div>
+                        )}
+                        
+                        {successMessage && (
+                            <div className="mb-5 p-4 bg-green-50 border border-green-300 rounded-xl">
+                                <p className="text-sm text-green-700 font-medium">{successMessage}</p>
+                            </div>
+                        )}
+
+                        {/* Login Form */}
+                        {mode === 'login' && (
+                            <form onSubmit={handleLogin} className="space-y-5">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        CPF
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="XXX.XXX.XXX-XX"
+                                        value={cpf}
+                                        onChange={(e) => setCpf(formatCPF(e.target.value))}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                        autoComplete="off"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Senha
+                                    </label>
+                                    <input
+                                        type="password"
+                                        placeholder="Sua senha segura"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg text-base"
+                                >
+                                    {isLoading ? 'Entrando...' : 'Entrar na Conta'}
+                                </button>
+                            </form>
+                        )}
+
+                        {/* Register Form */}
+                        {mode === 'register' && (
+                            <form onSubmit={handleRegister} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Nome
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Seu nome"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Sobrenome
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Seu sobrenome"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        CPF
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="XXX.XXX.XXX-XX"
+                                        value={cpf}
+                                        onChange={(e) => setCpf(formatCPF(e.target.value))}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                        autoComplete="off"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Telefone
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="(XX) 9XXXX-XXXX"
+                                        value={phone}
+                                        onChange={(e) => setPhone(formatPhone(e.target.value))}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Senha
+                                    </label>
+                                    <input
+                                        type="password"
+                                        placeholder="Mínimo 6 caracteres"
+                                        value={registerPassword}
+                                        onChange={(e) => setRegisterPassword(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Confirmar Senha
+                                    </label>
+                                    <input
+                                        type="password"
+                                        placeholder="Digite a senha novamente"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-gray-50"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg text-base"
+                                >
+                                    {isLoading ? 'Criando Conta...' : 'Criar Minha Conta'}
+                                </button>
+                            </form>
+                        )}
+
+                        {/* Switch Mode */}
+                        <div className="mt-6 text-center border-t border-gray-200 pt-6">
+                            <button
+                                onClick={switchMode}
+                                disabled={isLoading}
+                                className="text-emerald-600 hover:text-emerald-700 disabled:text-gray-400 font-semibold text-sm transition"
+                            >
+                                {mode === 'login' 
+                                    ? 'Não tem conta? Cadastre-se' 
+                                    : 'Já tem conta? Faça login'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <p className="text-center text-xs text-gray-500 mt-6">
+                        © 2025 Canoinhas Tênis Clube • Sistema v1.0
+                    </p>
                 </div>
             </div>
         </div>
