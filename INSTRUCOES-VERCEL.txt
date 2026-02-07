@@ -1,0 +1,43 @@
+# VERIFICAR SUAS CREDENCIAIS DO SUPABASE
+
+1. Acesse: https://app.supabase.com/
+2. Abra seu projeto ATUAL (o que está limpo e funcionando no localhost)
+3. Vá em: **Settings** > **API**
+4. Copie:
+   - **Project URL**: https://xxxxx.supabase.co
+   - **anon/public key**: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+---
+
+# ATUALIZAR NA VERCEL
+
+1. Acesse: https://vercel.com/dashboard
+2. Abra seu projeto: **elite-tenis-clube**
+3. **Settings** > **Environment Variables**
+
+4. EDITE ou ADICIONE estas variáveis:
+
+   **VITE_SUPABASE_URL**
+   - Production: [Cole a URL do Supabase ATUAL]
+   - Preview: [Cole a URL do Supabase ATUAL]
+   - Development: [Cole a URL do Supabase ATUAL]
+
+   **VITE_SUPABASE_ANON_KEY**
+   - Production: [Cole a anon key do Supabase ATUAL]
+   - Preview: [Cole a anon key do Supabase ATUAL]
+   - Development: [Cole a anon key do Supabase ATUAL]
+
+5. Clique em **Save**
+
+---
+
+# REDEPLOY
+
+1. Vá na aba **Deployments**
+2. Clique nos 3 pontinhos do último deploy
+3. **Redeploy**
+4. Aguarde ~2 minutos
+
+---
+
+Pronto! A Vercel vai conectar no banco correto!

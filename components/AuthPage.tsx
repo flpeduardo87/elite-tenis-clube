@@ -193,18 +193,22 @@ export const AuthPage: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-brand-primary/5 to-green-100/30 p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-emerald-600 to-teal-700 p-4">
             <div className="w-full max-w-md">
-                <header className="text-center mb-4">
-                    <div className="mb-2">
-                        <div className="inline-block p-3 bg-white rounded-2xl shadow-lg">
-                            <span className="text-3xl">🎾</span>
+                <header className="text-center mb-6">
+                    <div className="mb-4 flex justify-center">
+                        <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                            <img 
+                                src="/logo-elite.png" 
+                                alt="Elite Tênis Clube" 
+                                className="w-20 h-20 object-contain"
+                            />
                         </div>
                     </div>
-                    <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">
-                       Canoinhas Tênis Clube
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl drop-shadow-lg">
+                       Elite Tênis Clube
                     </h1>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-emerald-50 font-medium">
                         {mode === 'login' ? 'Entre com sua conta' : 'Crie sua conta'}
                     </p>
                 </header>
@@ -383,8 +387,8 @@ export const AuthPage: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="mt-4 text-center text-xs text-gray-500">
-                    <p>Sistema de Reserva de Quadras - Canoinhas Tênis Clube</p>
+                <div className="mt-6 text-center text-xs text-emerald-50/80">
+                    <p>Sistema de Reserva de Quadras v1.0</p>
                 </div>
             </div>
         </div>
