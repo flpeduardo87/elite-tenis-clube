@@ -193,29 +193,27 @@ export const AuthPage: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-emerald-600 p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#F3F4F6] p-2">
             <div className="w-full max-w-md">
-                <header className="text-center mb-8">
-                    <div className="mb-3 flex justify-center">
-                        <div className="bg-white p-2 rounded-xl shadow-lg">
-                            <img 
-                                src="/logo-elite.png" 
-                                alt="Canoinhas Tênis Clube" 
-                                className="w-14 h-14 object-contain"
-                            />
-                        </div>
+                <header className="text-center mb-3">
+                    <div className="mb-1.5 flex justify-center">
+                        <img 
+                            src="/logo-elite.png" 
+                            alt="Canoinhas Tênis Clube" 
+                            className="w-10 h-10 object-contain"
+                        />
                     </div>
-                    <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg">
+                    <h1 className="text-lg font-extrabold tracking-tight text-gray-800">
                        Canoinhas Tênis Clube
                     </h1>
-                    <p className="mt-1.5 text-xs text-emerald-50 font-medium">
+                    <p className="text-xs text-gray-600 font-medium">
                         {mode === 'login' ? 'Entre com sua conta' : 'Crie sua conta'}
                     </p>
                 </header>
 
-                <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                     {mode === 'login' ? (
-                        <form onSubmit={handleLogin} className="space-y-4">
+                        <form onSubmit={handleLogin} className="space-y-3">
                             <div>
                                 <label htmlFor="cpf" className="block text-xs font-semibold text-gray-700 mb-1">
                                     CPF
@@ -269,7 +267,7 @@ export const AuthPage: React.FC = () => {
                             </button>
                         </form>
                     ) : (
-                        <form onSubmit={handleRegister} className="space-y-3">
+                        <form onSubmit={handleRegister} className="space-y-2">
                             <div>
                                 <label htmlFor="register-name" className="block text-xs font-semibold text-gray-700 mb-1">
                                     Nome Completo
@@ -372,11 +370,11 @@ export const AuthPage: React.FC = () => {
                         </form>
                     )}
 
-                    <div className="mt-4 text-center">
+                    <div className="mt-2 text-center">
                         <button
                             onClick={switchMode}
                             disabled={loading}
-                            className="text-sm font-medium text-brand-primary hover:text-emerald-700 transition-colors disabled:opacity-50"
+                            className="text-xs font-medium text-brand-primary hover:text-emerald-700 transition-colors disabled:opacity-50"
                         >
                             {mode === 'login' ? (
                                 <>Não tem conta? <span className="underline">Cadastre-se aqui</span></>
@@ -387,8 +385,8 @@ export const AuthPage: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="mt-6 text-center text-xs text-emerald-50/80">
-                    <p>Sistema de Reserva de Quadras v1.0</p>
+                <div className="mt-2 text-center text-xs text-gray-400">
+                    <p>Sistema v1.0</p>
                 </div>
             </div>
         </div>
