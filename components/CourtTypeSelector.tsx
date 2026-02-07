@@ -43,7 +43,7 @@ export const CourtTypeSelector: React.FC<CourtTypeSelectorProps> = ({ onSelectCo
                     className="group flex flex-col items-center justify-center p-8 sm:p-12 bg-white rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 w-72 h-72 border-4 border-transparent hover:border-amber-500"
                 >
                     <SunIcon className="h-24 w-24 text-gray-400 group-hover:text-amber-500 transition-colors duration-300" />
-                    <span className="mt-6 text-2xl font-bold text-brand-dark">Areia</span>
+                    <span className="mt-6 text-2xl font-bold text-brand-dark">Beach</span>
                 </button>
             </div>
         </div>

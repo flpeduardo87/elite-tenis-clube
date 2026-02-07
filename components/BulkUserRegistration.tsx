@@ -26,19 +26,19 @@ export const BulkUserRegistration: React.FC<BulkUserRegistrationProps> = ({ onBu
 
     return (
         <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Cadastrar Múltiplos Sócios</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <h3 className="text-base font-medium text-gray-900 mb-1">Cadastrar Múltiplos Sócios</h3>
+            <p className="text-xs text-gray-600 mb-2">
                 Cole a lista de novos sócios no campo abaixo. Cada sócio deve estar em uma nova linha, com os dados separados por ponto e vírgula.
             </p>
-            <div className="bg-gray-100 p-3 rounded-md mb-4">
-                <p className="text-sm font-mono text-gray-700">
+            <div className="bg-gray-100 p-1.5 rounded-md mb-2">
+                <p className="text-xs font-mono text-gray-700">
                     <strong>Formato:</strong> CPF;Nome;Sobrenome<br />
                     <strong>Exemplo:</strong> 123.456.789-00;Joao;Silva
                 </p>
             </div>
             
             <textarea
-                rows={10}
+                rows={4}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-brand-red focus:border-brand-red"
                 placeholder="111.222.333-44;Maria;Souza&#10;999.888.777-66;Carlos;Pereira"
                 value={userData}
@@ -46,14 +46,14 @@ export const BulkUserRegistration: React.FC<BulkUserRegistrationProps> = ({ onBu
                 disabled={isLoading}
             />
 
-            <div className="mt-4 text-center">
-                 <p className="text-sm text-gray-500 mb-4">Uma senha temporária forte será gerada para cada sócio.</p>
+            <div className="mt-2 text-center">
+                 <p className="text-xs text-gray-500 mb-1.5">Uma senha temporária forte será gerada para cada sócio.</p>
                 <button
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-red hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:bg-gray-400"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-red hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:bg-gray-400"
                 >
-                    <UserPlusIcon className="-ml-1 mr-3 h-5 w-5" />
+                    <UserPlusIcon className="-ml-1 mr-2 h-4 w-4" />
                     {isLoading ? 'Cadastrando...' : 'Cadastrar Sócios'}
                 </button>
             </div>

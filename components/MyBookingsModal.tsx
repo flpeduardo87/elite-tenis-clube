@@ -59,13 +59,13 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({ isOpen, onClos
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-        <div className="flex justify-between items-center p-4 border-b">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 pb-28">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[calc(100vh-14rem)]">
+        <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
           <h2 className="text-xl font-bold text-brand-dark">Minhas Reservas</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button>
         </div>
-        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 18rem)' }}>
           {loading && <p className="text-sm text-gray-500">Carregando...</p>}
           {error && <p className="text-sm text-red-600">{error}</p>}
           {!loading && !error && (

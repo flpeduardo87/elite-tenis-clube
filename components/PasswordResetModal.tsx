@@ -17,8 +17,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
 
   const passwordChecks = useMemo(() => {
     return {
-      length: pwd1.length >= 10,
-      upper: /[A-Z]/.test(pwd1),
+      length: pwd1.length >= 6,
       lower: /[a-z]/.test(pwd1),
       number: /\d/.test(pwd1),
       symbol: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd1)
@@ -50,10 +49,9 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
           <p className="text-sm text-gray-600">Por segurança, é necessário definir uma nova senha.</p>
           <div>
             <label className="block text-sm font-medium text-gray-700">Nova senha</label>
-            <input type="password" value={pwd1} onChange={e => setPwd1(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Mínimo 10 caracteres" />
+            <input type="password" value={pwd1} onChange={e => setPwd1(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Mínimo 6 caracteres" />
             <ul className="mt-2 text-xs space-y-1">
-              <li className={passwordChecks.length ? 'text-green-600' : 'text-gray-500'}>• 10+ caracteres</li>
-              <li className={passwordChecks.upper ? 'text-green-600' : 'text-gray-500'}>• 1 letra maiúscula</li>
+              <li className={passwordChecks.length ? 'text-green-600' : 'text-gray-500'}>• 6+ caracteres</li>
               <li className={passwordChecks.lower ? 'text-green-600' : 'text-gray-500'}>• 1 letra minúscula</li>
               <li className={passwordChecks.number ? 'text-green-600' : 'text-gray-500'}>• 1 número</li>
               <li className={passwordChecks.symbol ? 'text-green-600' : 'text-gray-500'}>• 1 símbolo</li>

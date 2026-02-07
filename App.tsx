@@ -11,9 +11,12 @@ import { BookingModal } from './components/BookingModal';
 import { MyBookingsModal } from './components/MyBookingsModal';
 import { PasswordResetModal } from './components/PasswordResetModal';
 import { RulesModal } from './components/RulesModal';
+import { ProfileModal } from './components/ProfileModal';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { CourtTypeSelector } from './components/CourtTypeSelector';
 import { AuthPage } from './components/AuthPage';
+import { TopNav } from './components/TopNav';
+import { BottomNav } from './components/BottomNav';
 import type { Session } from '@supabase/supabase-js';
 import { isMasterAdmin, isValidCPF, handleSupabaseError, generateTempPassword } from './src/utils';
 import { ChevronLeftIcon, ChevronRightIcon } from './components/IconComponents';
@@ -32,6 +35,7 @@ const pollForProfile = async (userId: string, retries = 5, delay = 500): Promise
 const App: React.FC = () => {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isInitializing, setIsInitializing] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -44,8 +48,10 @@ const App: React.FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [mustResetPassword, setMustResetPassword] = useState<boolean>(false);
     const [isMyBookingsOpen, setIsMyBookingsOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [myBookingsCache, setMyBookingsCache] = useState<Booking[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [activeBottomNav, setActiveBottomNav] = useState<'tenis' | 'beach' | 'reservas' | 'perfil' | 'admin'>('tenis');
 
     const usersMap = useMemo(() => new Map(users.map(u => [u.cpf, u])), [users]);
     const startOfWeekDate = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate]);
@@ -53,13 +59,15 @@ const App: React.FC = () => {
 
     // Função de carregamento de dados
     const fetchAllData = useCallback(async (currentSession: Session | null) => {
-        console.log('🚀 INICIANDO fetchAllData...');
         setLoading(true);
         setErrorMessage(null);
         try {
             if (!currentSession) {
+                // Não mostrar erro se ainda está inicializando
+                if (!isInitializing) {
+                    setErrorMessage('Usuário não autenticado. Faça login para acessar o sistema.');
+                }
                 setLoading(false);
-                setErrorMessage('Usuário não autenticado. Faça login para acessar o sistema.');
                 return;
             }
             // Buscar perfil do usuário logado
@@ -89,30 +97,27 @@ const App: React.FC = () => {
             const { data: allBookings, error: bookingsError } = await supabase
                 .from('bookings')
                 .select('*');
-            console.log('📥 Resultado busca Supabase:', { allBookings, bookingsError });
             if (bookingsError || !allBookings) {
-                console.error('❌ ERRO ao carregar bookings:', bookingsError);
                 setErrorMessage('Erro ao carregar reservas. Verifique a tabela bookings no Supabase.');
             } else {
-                console.log('✅ ✅ ✅ BOOKINGS CARREGADOS:', allBookings.length, 'reservas');
-                console.table(allBookings);
                 setBookings(allBookings as Booking[]);
-                console.log('✅ setBookings chamado com', allBookings.length, 'itens');
             }
         } catch (err: any) {
             setErrorMessage('Erro inesperado ao conectar ao Supabase: ' + (err?.message || err));
         }
         setLoading(false);
-    }, []);
+    }, [isInitializing]);
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
+            setIsInitializing(false);
             fetchAllData(session);
         });
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
+            setIsInitializing(false);
             fetchAllData(session);
             if (session?.user?.user_metadata?.must_change_password) {
                 setMustResetPassword(true);
@@ -159,69 +164,18 @@ const App: React.FC = () => {
     const getBookingDetailsForSlot = useCallback((date: Date, timeSlot: TimeSlotInfo, courtId: number) => {
         const slotDateStr = date.toISOString().split('T')[0];
         
-        console.log('🔍 Buscando booking para:', {
-            data: slotDateStr,
-            horario: timeSlot.start,
-            quadra: courtId,
-            tipo: courtType,
-            totalBookings: bookings.length
-        });
-        
         const booking = bookings.find(b => {
             const bookingDateStr = b.date.includes('T') ? b.date.split('T')[0] : b.date;
-            const isCourtTypeMatch = (courtType === 'tennis' && b.court_id <= 2) || (courtType === 'sand' && b.court_id >= 3);
             
             const dateMatch = bookingDateStr === slotDateStr;
             const timeMatch = b.time_slot_start === timeSlot.start || b.time_slot_start === `${timeSlot.start}:00`;
             const courtMatch = b.court_id === courtId;
             const statusMatch = b.status === 'active';
             
-            const match = dateMatch && timeMatch && courtMatch && statusMatch && isCourtTypeMatch;
-            
-            // Log detalhado para cada booking verificado
-            if (dateMatch && timeMatch && courtMatch) {
-                console.log('🔎 Verificando booking:', {
-                    id: b.id,
-                    dateMatch,
-                    timeMatch,
-                    courtMatch,
-                    statusMatch,
-                    isCourtTypeMatch,
-                    match
-                });
-            }
-            
-            // Log detalhado para cada booking verificado
-            if (dateMatch && timeMatch && courtMatch) {
-                console.log('🔎 Verificando booking:', {
-                    id: b.id,
-                    dateMatch,
-                    timeMatch,
-                    courtMatch,
-                    statusMatch,
-                    isCourtTypeMatch,
-                    match,
-                    booking: b
-                });
-            }
-            
-            if (match) {
-                console.log('✅ Booking ENCONTRADO:', {
-                    id: b.id,
-                    date: bookingDateStr,
-                    slot: b.time_slot_start,
-                    court: b.court_id,
-                    member: b.member_id,
-                    opponent: b.opponent_id
-                });
-            }
+            const match = dateMatch && timeMatch && courtMatch && statusMatch;
             
             return match;
         });
-        
-        if (!booking) {
-            console.log('❌ Nenhum booking encontrado para:', slotDateStr, timeSlot.start, courtId);
-        }
         
         return booking;
     }, [bookings, courtType]);
@@ -234,7 +188,25 @@ const App: React.FC = () => {
     const handleGoBackToCourtSelection = () => setInitialCourtTypeSelected(false);
     const handlePreviousWeek = () => setCurrentDate(prev => subWeeks(prev, 1));
     const handleNextWeek = () => setCurrentDate(prev => addWeeks(prev, 1));
-    const handleToday = () => setCurrentDate(new Date());
+    const handleToday = () => {
+        const today = new Date();
+        setCurrentDate(today);
+        
+        // Aguardar um pouco para garantir que a semana foi atualizada
+        setTimeout(() => {
+            const todayDayOfWeek = getDay(today);
+            const adjustedDay = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1; // Ajustar para segunda começar em 0
+            
+            // Scroll para mobile
+            setActiveMobileDay(adjustedDay);
+            
+            // Scroll para desktop
+            const targetRef = dayRefs.current[adjustedDay];
+            if (targetRef) {
+                targetRef.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }, 100);
+    };
 
     const handleConfirmBooking = async (details: { opponentId: string, gameType: GameType }): Promise<{ success: boolean; error?: string }> => {
         if (!selectedSlot || !currentUser) return { success: false, error: 'Seleção inválida' };
@@ -257,6 +229,13 @@ const App: React.FC = () => {
             console.error('Erro ao criar agendamento:', error);
             return { success: false, error: friendly };
         }
+        
+        // Recarregar bookings após criar agendamento
+        const { data: allBookings } = await supabase.from('bookings').select('*');
+        if (allBookings) {
+            setBookings(allBookings as Booking[]);
+        }
+        
         return { success: true };
     };
 
@@ -296,13 +275,56 @@ const App: React.FC = () => {
 
     // Exclusão (soft delete): bloqueia e anonimiza mantendo histórico de reservas
     const handleDeleteUserSoft = async (cpf: string): Promise<{ success: boolean; error?: string }> => {
-        const { error } = await supabase.from('profiles').update({ is_blocked: true, first_name: '[REMOVIDO]', last_name: '' }).eq('cpf', cpf);
+        // Excluir completamente o usuário do profiles
+        const { error } = await supabase.from('profiles').delete().eq('cpf', cpf);
         if (error) return { success: false, error: handleSupabaseError(error) };
-        setUsers(prev => prev.map(u => u.cpf === cpf ? { ...u, is_blocked: true, first_name: '[REMOVIDO]', last_name: '' } : u));
+        
+        // Remover o usuário da lista local
+        setUsers(prev => prev.filter(u => u.cpf !== cpf));
+        
         return { success: true };
     };
+
+    const handleResetUserPassword = async (cpf: string): Promise<{ success: boolean; error?: string; tempPassword?: string }> => {
+        // Buscar o usuário no profiles
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name')
+            .eq('cpf', cpf)
+            .single();
+        
+        if (profileError || !profile) {
+            return { success: false, error: 'Usuário não encontrado.' };
+        }
+
+        // Gerar nova senha temporária
+        const tempPassword = generateTempPassword();
+
+        // No modo preview, apenas retornar a senha sem atualizar
+        if (isPreviewMode) {
+            return { success: true, tempPassword };
+        }
+
+        // Atualizar senha no Supabase Auth
+        const { error: updateError } = await supabase.auth.admin.updateUserById(
+            profile.id,
+            { password: tempPassword }
+        );
+
+        if (updateError) {
+            return { success: false, error: handleSupabaseError(updateError) };
+        }
+
+        // Marcar que o usuário deve trocar a senha
+        const { error: metaError } = await supabase.auth.admin.updateUserById(
+            profile.id,
+            { user_metadata: { must_change_password: true } }
+        );
+
+        return { success: true, tempPassword };
+    };
     
-    const handleSingleUserRegister = async (details: { cpf: string; firstName: string; lastName: string; }): Promise<{ success: boolean; error?: string; tempPassword?: string; }> => {
+    const handleSingleUserRegister = async (details: { cpf: string; firstName: string; lastName: string; phone?: string }): Promise<{ success: boolean; error?: string; tempPassword?: string; }> => {
         if (!isValidCPF(details.cpf)) {
             return { success: false, error: 'CPF inválido. Verifique os dígitos.' };
         }
@@ -324,12 +346,22 @@ const App: React.FC = () => {
                     first_name: details.firstName,
                     last_name: details.lastName,
                     cpf: details.cpf,
+                    phone: details.phone || null,
                     must_change_password: true,
                 }
             }
         });
 
         if (authError) {
+            // Se o usuário já existe no Auth (foi excluído anteriormente mas permanece no Auth)
+            if (authError.message.toLowerCase().includes('already') || 
+                authError.message.toLowerCase().includes('registered') ||
+                authError.message.toLowerCase().includes('duplicate')) {
+                return { 
+                    success: false, 
+                    error: 'CPF já existe no sistema de autenticação. Execute o script "limpar-usuarios-auth.sql" no Supabase ou use a opção Bloquear em vez de Excluir.' 
+                };
+            }
             if (authError.message.toLowerCase().includes('rate limit')) {
                  return { success: false, error: `Erro: Muitas tentativas. Por favor, aguarde um momento.` };
             }
@@ -434,6 +466,7 @@ const App: React.FC = () => {
     const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(startOfWeekDate, i)), [startOfWeekDate]);
     const [activeMobileDay, setActiveMobileDay] = useState(0);
     const touchStartXRef = useRef<number | null>(null);
+    const dayRefs = useRef<(HTMLDivElement | null)[]>([]);
     useEffect(() => { setActiveMobileDay(0); }, [startOfWeekDate]);
     const isTeacherOrAdmin = currentUser && currentUser.roles.includes('teacher') || currentUser && currentUser.roles.includes('admin');
     const isMasterAdminCheck = currentUser ? isMasterAdmin(currentUser) : false;
@@ -464,120 +497,93 @@ const App: React.FC = () => {
         }
 
         return (
-            <DayColumn
-                key={date.toISOString()}
-                date={date}
-                dayName={DAYS_OF_WEEK[index]}
-                timeSlots={dayOfWeek === 0 || dayOfWeek === 6 ? WEEKEND_TIME_SLOTS : WEEKDAY_TIME_SLOTS}
-                isClosed={isMonday}
-                areSlotsReleased={areSlotsReleased}
-                isBookable={isBookable}
-                isPast={isPast}
-                getBookingDetailsForSlot={getBookingDetailsForSlot}
-                onBookSlot={handleBookSlot}
-                onCancelBooking={handleCancelBooking}
-                currentUser={currentUser}
-                usersMap={usersMap}
-                courts={courtType === 'tennis' ? TENNIS_COURTS : SAND_COURTS}
-            />
+            <div key={date.toISOString()} ref={(el) => (dayRefs.current[index] = el)}>
+                <DayColumn
+                    date={date}
+                    dayName={DAYS_OF_WEEK[index]}
+                    timeSlots={dayOfWeek === 0 || dayOfWeek === 6 ? WEEKEND_TIME_SLOTS : WEEKDAY_TIME_SLOTS}
+                    isClosed={isMonday}
+                    areSlotsReleased={areSlotsReleased}
+                    isBookable={isBookable}
+                    isPast={isPast}
+                    getBookingDetailsForSlot={getBookingDetailsForSlot}
+                    onBookSlot={handleBookSlot}
+                    onCancelBooking={handleCancelBooking}
+                    currentUser={currentUser}
+                    usersMap={usersMap}
+                    courts={courtType === 'tennis' ? TENNIS_COURTS : SAND_COURTS}
+                />
+            </div>
         );
     }, [getBookingDetailsForSlot, handleBookSlot, handleCancelBooking, currentUser, usersMap, courtType, today, isTeacherOrAdmin]);
 
+    const handleBottomNavigation = (view: 'tenis' | 'beach' | 'reservas' | 'perfil' | 'admin') => {
+        // Fechar todos os modais antes de navegar
+        setIsMyBookingsOpen(false);
+        setIsAdminPanelOpen(false);
+        setIsRulesModalOpen(false);
+        setIsProfileModalOpen(false);
+        
+        setActiveBottomNav(view);
+        
+        switch (view) {
+            case 'tenis':
+                setCourtType('tennis');
+                setInitialCourtTypeSelected(true);
+                break;
+            case 'beach':
+                setCourtType('sand');
+                setInitialCourtTypeSelected(true);
+                break;
+            case 'reservas':
+                setIsMyBookingsOpen(true);
+                break;
+            case 'perfil':
+                setIsProfileModalOpen(true);
+                break;
+            case 'admin':
+                if (isTeacherOrAdmin || isMasterAdminCheck) {
+                    setIsAdminPanelOpen(true);
+                }
+                break;
+        }
+    };
+
     return (
-        <div className="p-4 sm:p-6 md:p-8 max-w-screen-2xl mx-auto font-sans">
+        <div className="min-h-screen bg-brand-bg">
+            {/* Top Navigation - sempre visível quando logado */}
+            {!isInitializing && session && <TopNav onLogoClick={() => setInitialCourtTypeSelected(false)} />}
+            
+            {/* Main Content com padding para os menus fixos */}
+            <div className={`${!isInitializing && session ? 'pt-20 sm:pt-28 pb-72 sm:pb-80' : ''} p-4 sm:p-6 md:p-8 max-w-screen-2xl mx-auto font-sans`}>
+            {/* Mostrar loading enquanto inicializa */}
+            {isInitializing && (
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-brand-primary border-t-transparent mx-auto mb-4"></div>
+                        <p className="text-gray-600 font-medium">Carregando...</p>
+                    </div>
+                </div>
+            )}
+
             {/* Exibir tela de login se não houver sessão/autenticação */}
-            {!session && (
+            {!isInitializing && !session && (
                 <div className="flex items-center justify-center min-h-[60vh]">
                     <AuthPage />
                 </div>
             )}
 
             {/* Painel de erro detalhado */}
-            {session && errorMessage && (
+            {!isInitializing && session && errorMessage && (
                 <div className="p-8">
                     <h2 className="text-lg font-bold mb-2 text-red-700">Erro ao carregar dados</h2>
                     <div className="bg-red-100 p-4 rounded text-sm text-red-800 mb-4">{errorMessage}</div>
-                    <pre className="bg-gray-100 p-4 rounded text-xs overflow-x-auto">
-{JSON.stringify({
-    currentUser,
-    users,
-    bookings,
-    courtType,
-    initialCourtTypeSelected
-}, null, 2)}
-                    </pre>
                     <div className="mt-4 text-red-600">Verifique as variáveis de ambiente, credenciais do Supabase, autenticação do usuário e se há dados nas tabelas.</div>
                 </div>
             )}
 
-            {/* Painel de debug visual (fallback antigo) */}
-            {session && !errorMessage && (!users.length || !bookings.length || !currentUser) && (
-                <div className="p-8">
-                    <h2 className="text-lg font-bold mb-2">Painel de Debug</h2>
-                    <pre className="bg-gray-100 p-4 rounded text-xs overflow-x-auto">
-{JSON.stringify({
-    currentUser,
-    users,
-    bookings,
-    courtType,
-    initialCourtTypeSelected
-}, null, 2)}
-                    </pre>
-                    <div className="mt-4 text-red-600">Dados insuficientes para renderizar o calendário. Verifique se há usuários e reservas cadastrados no Supabase.</div>
-                    {/* Painel visual de agendamentos para debug */}
-                            <div className="mt-8">
-                                <h3 className="text-md font-semibold mb-2">Agendamentos filtrados para esta semana e tipo de quadra:</h3>
-                                {(() => {
-                                    const startOfWeekStr = startOfWeekDate.toISOString().split('T')[0];
-                                    const endOfWeekStr = format(addDays(startOfWeekDate, 6), 'yyyy-MM-dd');
-                                    const filteredBookings = bookings.filter(b => {
-                                        const bookingDateStr = b.date.includes('T') ? b.date.split('T')[0] : b.date;
-                                        const isCourtTypeMatch = (courtType === 'tennis' && b.court_id <= 2) || (courtType === 'sand' && b.court_id >= 3);
-                                        return (
-                                            bookingDateStr >= startOfWeekStr &&
-                                            bookingDateStr <= endOfWeekStr &&
-                                            b.status === 'active' &&
-                                            isCourtTypeMatch
-                                        );
-                                    });
-                                    if (filteredBookings.length === 0) {
-                                        return <div className="text-gray-500">Nenhum agendamento encontrado para esta semana e tipo de quadra.</div>;
-                                    }
-                                    return (
-                                        <table className="min-w-full text-xs border">
-                                            <thead>
-                                                <tr className="bg-gray-200">
-                                                    <th className="border px-2 py-1">ID</th>
-                                                    <th className="border px-2 py-1">Data</th>
-                                                    <th className="border px-2 py-1">Horário</th>
-                                                    <th className="border px-2 py-1">Quadra</th>
-                                                    <th className="border px-2 py-1">Membro</th>
-                                                    <th className="border px-2 py-1">Oponente</th>
-                                                    <th className="border px-2 py-1">Tipo</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredBookings.map(b => (
-                                                    <tr key={b.id} className="border-b">
-                                                        <td className="border px-2 py-1">{b.id}</td>
-                                                        <td className="border px-2 py-1">{b.date}</td>
-                                                        <td className="border px-2 py-1">{b.time_slot_start} - {b.time_slot_end}</td>
-                                                        <td className="border px-2 py-1">{b.court_id}</td>
-                                                        <td className="border px-2 py-1">{b.member_id}</td>
-                                                        <td className="border px-2 py-1">{b.opponent_id}</td>
-                                                        <td className="border px-2 py-1">{b.game_type}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    );
-                                })()}
-                            </div>
-                </div>
-            )}
-
             {/* ...existing code... */}
-            {session && users.length > 0 && bookings.length > 0 && currentUser && !errorMessage && (
+            {!isInitializing && session && users.length > 0 && bookings.length > 0 && currentUser && !errorMessage && (
             <>
             <Header 
                 currentUser={currentUser}
@@ -598,26 +604,26 @@ const App: React.FC = () => {
                 <WeekNavigator currentDate={currentDate} onPreviousWeek={handlePreviousWeek} onNextWeek={handleNextWeek} onToday={handleToday} />
 
                 {/* Mobile: Carousel (one day at a time) */}
-                <div className="block md:hidden mt-6">
-                    <div className="flex items-center justify-between mb-3">
+                <div className="block md:hidden mt-6 pb-20">
+                    <div className="flex items-center justify-between mb-4 bg-white p-3 rounded-xl shadow-soft">
                         <button
                             onClick={() => setActiveMobileDay(i => Math.max(0, i - 1))}
                             disabled={activeMobileDay === 0}
-                            className={`p-2 rounded-full hover:bg-gray-100 ${activeMobileDay === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                            className={`p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors ${activeMobileDay === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
                             aria-label="Dia anterior"
                         >
-                            <ChevronLeftIcon className="h-5 w-5" />
+                            <ChevronLeftIcon className="h-5 w-5 text-gray-700" />
                         </button>
-                        <div className="text-sm font-semibold text-gray-800">
+                        <div className="text-base font-bold text-gray-800">
                             {DAYS_OF_WEEK[activeMobileDay]} • {format(days[activeMobileDay], 'dd/MM')}
                         </div>
                         <button
                             onClick={() => setActiveMobileDay(i => Math.min(6, i + 1))}
                             disabled={activeMobileDay === 6}
-                            className={`p-2 rounded-full hover:bg-gray-100 ${activeMobileDay === 6 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                            className={`p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors ${activeMobileDay === 6 ? 'opacity-40 cursor-not-allowed' : ''}`}
                             aria-label="Próximo dia"
                         >
-                            <ChevronRightIcon className="h-5 w-5" />
+                            <ChevronRightIcon className="h-5 w-5 text-gray-700" />
                         </button>
                     </div>
 
@@ -627,7 +633,7 @@ const App: React.FC = () => {
                             const startX = touchStartXRef.current;
                             if (startX == null) return;
                             const deltaX = e.changedTouches[0].clientX - startX;
-                            const threshold = 40; // px
+                            const threshold = 50; // px
                             if (deltaX > threshold) setActiveMobileDay(i => Math.max(0, i - 1));
                             if (deltaX < -threshold) setActiveMobileDay(i => Math.min(6, i + 1));
                             touchStartXRef.current = null;
@@ -636,12 +642,12 @@ const App: React.FC = () => {
                         {renderDayColumn(days[activeMobileDay], activeMobileDay)}
                     </div>
 
-                    <div className="flex justify-center gap-2 mt-3">
+                    <div className="flex justify-center gap-2.5 mt-4">
                         {days.map((_, i) => (
                             <button
                                 key={i}
                                 onClick={() => setActiveMobileDay(i)}
-                                className={`h-2 w-2 rounded-full ${i === activeMobileDay ? 'bg-brand-red' : 'bg-gray-300'}`}
+                                className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${i === activeMobileDay ? 'bg-brand-primary w-8' : 'bg-gray-300'}`}
                                 aria-label={`Ir para ${DAYS_OF_WEEK[i]}`}
                             />
                         ))}
@@ -649,7 +655,7 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Desktop: Weekly grid */}
-                <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-7 gap-4 mt-6">
+                <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-7 gap-4 mt-6 pb-20">
                     {days.map((date, index) => renderDayColumn(date, index))}
                 </div>
             </main>
@@ -670,6 +676,7 @@ const App: React.FC = () => {
             <RulesModal isOpen={isRulesModalOpen} onClose={() => setIsRulesModalOpen(false)} />
             <PasswordResetModal isOpen={mustResetPassword} onClose={() => {}} onConfirm={handlePasswordReset} />
             <MyBookingsModal isOpen={isMyBookingsOpen} onClose={() => setIsMyBookingsOpen(false)} currentUser={currentUser} fetchUserBookings={fetchUserBookings} onCancelBooking={async (id) => { await handleCancelBooking(id); fetchUserBookings(); }} />
+            <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} currentUser={currentUser} />
             
             {(isTeacherOrAdmin || isMasterAdminCheck) && (
                  <AdminPanelModal
@@ -682,10 +689,22 @@ const App: React.FC = () => {
                     onBulkRegister={handleBulkUserRegister}
                     onEditUser={handleEditUserBasic}
                     onDeleteUser={handleDeleteUserSoft}
+                    onResetPassword={handleResetUserPassword}
                     currentUser={currentUser}
                 />
             )}
             </>
+            )}
+            </div>
+            
+            {/* Bottom Navigation - sempre visível quando logado */}
+            {!isInitializing && session && currentUser && (
+                <BottomNav 
+                    activeView={activeBottomNav}
+                    onNavigate={handleBottomNavigation}
+                    courtType={courtType}
+                    isAdmin={isTeacherOrAdmin || isMasterAdminCheck}
+                />
             )}
         </div>
     );

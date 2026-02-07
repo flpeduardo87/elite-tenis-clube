@@ -19,33 +19,22 @@ const SAND_SPORT_NAMES: Record<string, string> = {
 };
 
 export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, currentUser, usersMap, onBook, onCancel }) => {
-    const commonClasses = "w-full text-center p-1 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center h-14";
-
-    // Log para verificar se booking está chegando
-    if (booking) {
-        console.log('🏓 TimeSlot recebeu booking:', {
-            slot: timeSlot.start,
-            bookingId: booking.id,
-            member: booking.member_id,
-            opponent: booking.opponent_id,
-            gameType: booking.game_type
-        });
-    }
+    const commonClasses = "w-full text-center p-2 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center justify-center h-16 shadow-soft";
 
     if (!booking) {
         if (isPast) {
             return (
-                <div className={`${commonClasses} bg-gray-200 text-gray-400 cursor-not-allowed`}>
-                    {timeSlot.start}
+                <div className={`${commonClasses} bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200`}>
+                    <span className="opacity-60">{timeSlot.start}</span>
                 </div>
             );
         }
         return (
             <button
                 onClick={onBook}
-                className={`${commonClasses} bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-dashed border-emerald-300`}
+                className={`${commonClasses} bg-gradient-to-br from-emerald-50 to-green-50 text-emerald-700 hover:from-emerald-100 hover:to-green-100 hover:shadow-card hover:scale-105 border-2 border-dashed border-emerald-300 hover:border-emerald-400`}
             >
-                {timeSlot.start}
+                <span className="font-bold">{timeSlot.start}</span>
             </button>
         );
     }
@@ -77,12 +66,12 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
 
     if (booking.game_type === 'interdiction') {
         const titleText = member ? `Interditado por ${member.first_name}` : "Interditado pela administração";
-        const slotClasses = isPast ? disabledSlotClasses : `${commonClasses} flex-col bg-amber-100 text-amber-800 cursor-not-allowed border border-dashed border-amber-400`;
+        const slotClasses = isPast ? disabledSlotClasses : `${commonClasses} flex-col bg-gradient-to-br from-amber-100 to-orange-100 text-amber-800 cursor-not-allowed border-2 border-amber-300 shadow-card`;
         return (
             <div className="relative group">
                 <div className={slotClasses} title={titleText}>
-                    <LockIcon className="h-4 w-4 mb-0.5"/>
-                    <span className="text-[10px] font-bold">Interditada</span>
+                    <LockIcon className="h-5 w-5 mb-1"/>
+                    <span className="text-[10px] font-bold uppercase tracking-wide">Interditada</span>
                 </div>
                 {canCurrentUserCancel && (
                     <button 
@@ -101,20 +90,20 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         const titleText = member ? `${SAND_SPORT_NAMES[booking.game_type]} - por ${member.first_name}` : SAND_SPORT_NAMES[booking.game_type];
         const slotClasses = isPast 
             ? disabledSlotClasses 
-            : `${commonClasses} flex-col ${isBookedByCurrentUser ? 'bg-rose-600 text-white' : 'bg-gray-300 text-gray-800'} cursor-default`;
+            : `${commonClasses} flex-col ${isBookedByCurrentUser ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-card' : 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-800 shadow-card'} cursor-default`;
         
         return (
             <div className="relative group">
                 <div className={slotClasses} title={titleText}>
-                    <span className="font-bold">{SAND_SPORT_NAMES[booking.game_type]}</span>
-                    <span className={`text-[10px] truncate ${isPast ? 'text-gray-500' : (isBookedByCurrentUser ? 'text-rose-200' : 'text-gray-500')}`}>
+                    <span className="font-bold text-sm">{SAND_SPORT_NAMES[booking.game_type]}</span>
+                    <span className={`text-[10px] truncate mt-0.5 ${isPast ? 'text-gray-500' : (isBookedByCurrentUser ? 'text-rose-100' : 'text-gray-600')}`}>
                         {isBookedByCurrentUser ? 'Seu Jogo' : (member ? `por ${member.first_name}`: '')}
                     </span>
                 </div>
                 {canCurrentUserCancel && (
                     <button 
                         onClick={onCancel} 
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-card hover:scale-110"
                         aria-label="Cancelar agendamento"
                     >
                         <XCircleIcon className="h-5 w-5" />
@@ -129,18 +118,18 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         const displayText = teacher ? `Aula - ${teacher.first_name}` : booking.member_id;
         const slotClasses = isPast 
             ? disabledSlotClasses 
-            : `${commonClasses} flex-col bg-slate-400 text-white cursor-default`;
+            : `${commonClasses} flex-col bg-gradient-to-br from-blue-500 to-indigo-600 text-white cursor-default shadow-card`;
         
         return (
             <div className="relative group">
                 <div className={slotClasses} title={displayText}>
-                    <span className="font-bold truncate max-w-full">{teacher ? `Aula` : booking.member_id}</span>
-                    {teacher && <span className={`text-[10px] truncate ${isPast ? 'text-gray-500' : 'text-slate-200'}`}>{teacher.first_name}</span>}
+                    <span className="font-bold truncate max-w-full text-sm">Aula</span>
+                    {teacher && <span className={`text-[10px] truncate mt-0.5 ${isPast ? 'text-gray-500' : 'text-blue-100'}`}>{teacher.first_name}</span>}
                 </div>
                 {canCurrentUserCancel && (
                     <button 
                         onClick={onCancel} 
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-card hover:scale-110"
                         aria-label="Cancelar aula"
                     >
                         <XCircleIcon className="h-5 w-5" />
@@ -154,23 +143,23 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         const titleText = `${member?.first_name} ${member?.last_name} vs ${opponent?.first_name || ''} ${opponent?.last_name || ''}`;
         const slotClasses = isPast
             ? `${commonClasses} bg-gray-300 text-gray-600 cursor-not-allowed`
-            : `${commonClasses} ${isBookedByCurrentUser ? 'bg-rose-600' : 'bg-rose-400'} text-white cursor-default flex-col`;
-        const vsClasses = isPast ? 'text-gray-500' : 'text-rose-200';
+            : `${commonClasses} ${isBookedByCurrentUser ? 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-card' : 'bg-gradient-to-br from-rose-400 to-pink-500 shadow-card'} text-white cursor-default flex-col`;
+        const vsClasses = isPast ? 'text-gray-500' : 'text-white/80';
         
         return (
             <div className="relative group">
                 <div className={slotClasses} title={titleText}>
-                    <span className="truncate max-w-full font-semibold">{isBookedByCurrentUser ? 'Você' : member?.first_name}</span>
-                    <span className={`${vsClasses} text-[10px]`}>vs</span>
-                    <span className="truncate max-w-full font-semibold">{isBookedByCurrentUser ? (opponent?.first_name || opponent?.cpf) : 'Você'}</span>
+                    <span className="truncate max-w-full font-bold text-xs leading-tight">{isBookedByCurrentUser ? 'Você' : member?.first_name}</span>
+                    <span className={`${vsClasses} text-[8px] font-semibold my-0.5`}>vs</span>
+                    <span className="truncate max-w-full font-bold text-xs leading-tight">{isBookedByCurrentUser ? (opponent?.first_name || opponent?.cpf) : 'Você'}</span>
                 </div>
                 {booking.game_type === 'pyramid' && !isPast && (
-                    <span className="absolute top-1.5 right-1.5 bg-white text-brand-dark text-[8px] font-bold rounded-full h-4 w-4 flex items-center justify-center pointer-events-none">P</span>
+                    <span className="absolute top-2 right-2 bg-white text-rose-600 text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm">P</span>
                 )}
                 {canCurrentUserCancel && (
                     <button 
                         onClick={onCancel} 
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-card hover:scale-110"
                         aria-label="Cancelar agendamento"
                     >
                         <XCircleIcon className="h-5 w-5" />
@@ -183,15 +172,15 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
     const titleText = `${member?.first_name} ${member?.last_name} vs ${opponent?.first_name || opponent?.cpf || ''} ${opponent?.last_name || ''}`;
     const slotClasses = isPast 
         ? `relative ${commonClasses} flex-col bg-gray-300 text-gray-600 cursor-not-allowed`
-        : `relative ${commonClasses} flex-col bg-gray-200 text-gray-700 cursor-not-allowed`;
+        : `relative ${commonClasses} flex-col bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 cursor-not-allowed border-2 border-gray-300`;
     
     return (
         <div className={slotClasses} title={titleText}>
-            <span className="truncate max-w-full font-semibold">{member?.first_name || member?.cpf}</span>
-            <span className="text-gray-500 text-[10px]">vs</span>
-            <span className="truncate max-w-full font-semibold">{opponent?.first_name || opponent?.cpf || ''}</span>
+            <span className="truncate max-w-full font-semibold text-xs leading-tight">{member?.first_name || member?.cpf}</span>
+            <span className="text-gray-500 text-[8px] font-semibold my-0.5">vs</span>
+            <span className="truncate max-w-full font-semibold text-xs leading-tight">{opponent?.first_name || opponent?.cpf || ''}</span>
             {booking.game_type === 'pyramid' && !isPast && (
-                <span className="absolute top-1.5 right-1.5 bg-gray-400 text-white text-[8px] font-bold rounded-full h-3 w-3 flex items-center justify-center pointer-events-none">P</span>
+                <span className="absolute top-2 right-2 bg-gray-400 text-white text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm">P</span>
             )}
         </div>
     );

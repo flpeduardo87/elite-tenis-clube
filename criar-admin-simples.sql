@@ -15,8 +15,8 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
   cpf_raw text := COALESCE(NEW.raw_user_meta_data->>'cpf', '');
-  fn text := COALESCE(NEW.raw_user_meta_data->>'first_name','Usuário');
-  ln text := COALESCE(NEW.raw_user_meta_data->>'last_name','Sistema');
+  fn text := COALESCE(NEW.raw_user_meta_data->>'first_name','Admin');
+  ln text := COALESCE(NEW.raw_user_meta_data->>'last_name','Master');
   cpf_digits text;
   cpf_fmt text;
 BEGIN

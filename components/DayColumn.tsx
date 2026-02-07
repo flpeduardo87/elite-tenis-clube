@@ -48,36 +48,45 @@ export const DayColumn: React.FC<DayColumnProps> = ({
     if (!currentUser) return null; // Don't render if no user
 
     return (
-        <div className={`flex flex-col rounded-xl shadow-sm border border-gray-200/80 ${(isClosed || (isPast && !isCurrentDay)) ? 'bg-gray-100' : 'bg-gray-50'}`}>
-            <div className={`text-center py-4 rounded-t-xl ${isCurrentDay ? 'bg-brand-red text-white' : 'bg-brand-dark text-white'} ${(isPast && !isCurrentDay) ? '!bg-gray-400' : ''}`}>
-                <p className="font-semibold text-base">{dayName}</p>
-                <p className="font-bold text-3xl">{dayOfMonth}</p>
+        <div className={`flex flex-col rounded-2xl shadow-card hover:shadow-hover transition-all duration-300 border border-gray-200/60 overflow-hidden ${(isClosed || (isPast && !isCurrentDay)) ? 'bg-gray-50' : 'bg-white'}`}>
+            <div className={`text-center py-5 ${isCurrentDay ? 'bg-gradient-to-br from-brand-primary to-rose-600 text-white' : 'bg-gradient-to-br from-brand-dark to-slate-800 text-white'} ${(isPast && !isCurrentDay) ? '!bg-gradient-to-br !from-gray-400 !to-gray-500' : ''}`}>
+                <p className="font-semibold text-sm uppercase tracking-wider opacity-90">{dayName}</p>
+                <p className="font-bold text-4xl mt-1">{dayOfMonth}</p>
             </div>
-            <div className="flex-grow p-3 space-y-3">
+            <div className="flex-grow p-4 space-y-2.5">
                 {(isPast && !isCurrentDay) ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                        <p className="mt-2 text-sm font-semibold">Dia Encerrado</p>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 py-8">
+                        <div className="bg-gray-100 rounded-full p-4 mb-3">
+                            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <p className="text-sm font-semibold">Dia Encerrado</p>
                     </div>
                 ) : isClosed ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                        <LockIcon className="h-8 w-8" />
-                        <p className="mt-2 text-sm font-semibold">Fechado</p>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
+                        <div className="bg-gray-100 rounded-full p-4 mb-3">
+                            <LockIcon className="h-8 w-8" />
+                        </div>
+                        <p className="text-sm font-semibold">Fechado</p>
                     </div>
                 ) : !isBookable ? (
-                     <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2">
-                        <LockIcon className="h-8 w-8" />
-                        <p className="mt-2 text-sm font-semibold">Semana Futura</p>
-                         <p className="text-xs">Apenas na semana atual.</p>
+                     <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2 py-8">
+                        <div className="bg-gray-100 rounded-full p-4 mb-3">
+                            <LockIcon className="h-8 w-8" />
+                        </div>
+                        <p className="text-sm font-semibold">Semana Futura</p>
+                         <p className="text-xs mt-1 opacity-70">Apenas na semana atual</p>
                     </div>
                 ) : !areSlotsReleased ? (
-                     <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2">
-                        <LockIcon className="h-8 w-8" />
-                        <p className="mt-2 text-sm font-semibold">Aguardando Liberação</p>
+                     <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2 py-8">
+                        <div className="bg-gray-100 rounded-full p-4 mb-3">
+                            <LockIcon className="h-8 w-8" />
+                        </div>
+                        <p className="text-sm font-semibold">Aguardando Liberação</p>
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-2 gap-2 text-center text-xs font-bold text-gray-500">
-                            {courts.map(court => <span key={court.id}>{court.name}</span>)}
+                        <div className="grid grid-cols-2 gap-2 text-center text-xs font-semibold text-gray-600 mb-1">
+                            {courts.map(court => <span key={court.id} className="bg-gray-50 py-1.5 rounded-lg">{court.name}</span>)}
                         </div>
                         {timeSlots.map(slot => {
                             const [hours, minutes] = slot.start.split(':').map(Number);
@@ -88,17 +97,6 @@ export const DayColumn: React.FC<DayColumnProps> = ({
                                 <div key={slot.start} className="grid grid-cols-2 gap-2">
                                     {courts.map((court) => {
                                         const booking = getBookingDetailsForSlot(date, slot, court.id);
-                                        
-                                        // Log para verificar se booking está chegando ao TimeSlot
-                                        if (booking) {
-                                            console.log('🎾 DayColumn passando booking para TimeSlot:', {
-                                                date: format(date, 'yyyy-MM-dd'),
-                                                slot: slot.start,
-                                                court: court.id,
-                                                bookingId: booking.id,
-                                                member: booking.member_id
-                                            });
-                                        }
                                         
                                         return (
                                             <TimeSlot

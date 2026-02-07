@@ -217,25 +217,25 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     const courtName = [...TENNIS_COURTS, ...SAND_COURTS].find(c => c.id === slotInfo.courtId)?.name || `Quadra ${slotInfo.courtId}`;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="flex justify-between items-center p-4 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 pb-28">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[calc(100vh-10rem)]">
+                <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
                     <h2 className="text-xl font-bold text-brand-dark">Confirmar Agendamento</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button>
                 </div>
                 
-                <div className="p-6 space-y-6">
+                <div className="p-4 space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 14rem)' }}>
                     <div>
-                        <p className="text-sm text-gray-500">Você está agendando:</p>
-                        <p className="text-lg font-semibold text-brand-dark">{courtName}</p>
-                        <p className="text-lg font-semibold text-brand-dark capitalize">{format(slotInfo.date, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
-                        <p className="text-lg font-semibold text-brand-dark">Das {slotInfo.timeSlot.start} às {slotInfo.timeSlot.end}</p>
+                        <p className="text-xs text-gray-500 mb-1">Você está agendando:</p>
+                        <p className="text-base font-semibold text-brand-dark">{courtName}</p>
+                        <p className="text-sm font-medium text-brand-dark capitalize">{format(slotInfo.date, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
+                        <p className="text-sm font-medium text-brand-dark">Das {slotInfo.timeSlot.start} às {slotInfo.timeSlot.end}</p>
                     </div>
 
                     {courtType === 'tennis' && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Jogo</label>
-                            <select value={gameType} onChange={e => setGameType(e.target.value as GameType)} className="w-full p-2 border border-gray-300 rounded-md">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Tipo de Jogo</label>
+                            <select value={gameType} onChange={e => setGameType(e.target.value as GameType)} className="w-full p-2 border border-gray-300 rounded-md text-sm">
                                 {isRestrictedSlot ? (
                                     <>
                                         {isTeacher && <option value="class">Aula</option>}
@@ -255,8 +255,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
                     {courtType === 'sand' && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Modalidade</label>
-                            <select value={gameType} onChange={e => setGameType(e.target.value as GameType)} className="w-full p-2 border border-gray-300 rounded-md">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Modalidade</label>
+                            <select value={gameType} onChange={e => setGameType(e.target.value as GameType)} className="w-full p-2 border border-gray-300 rounded-md text-sm">
                                 {isRestrictedSlot ? (
                                      <>
                                         {isTeacher && <option value="class">Aula</option>}
@@ -275,7 +275,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     
                     {requiresOpponent && (
                         <div ref={dropdownRef} className="relative">
-                            <label htmlFor="opponent" className="block text-sm font-medium text-gray-700">Adversário</label>
+                            <label htmlFor="opponent" className="block text-xs font-medium text-gray-700 mb-1">Adversário</label>
                             <div className="relative mt-1">
                                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                 <input
@@ -306,13 +306,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     )}
 
                     {submitError && (
-                        <div className="text-sm text-red-700 bg-red-100 border border-red-200 p-2 rounded">
+                        <div className="text-xs text-red-700 bg-red-100 border border-red-200 p-2 rounded">
                             {submitError}
                         </div>
                     )}
                 </div>
 
-                <div className="flex justify-end p-4 bg-gray-50 rounded-b-lg">
+                <div className="flex justify-end p-4 bg-gray-50 rounded-b-lg flex-shrink-0">
                     <button onClick={onClose} className="px-4 py-2 mr-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
                     <button onClick={handleConfirmClick} disabled={!canConfirm || isSubmitting} className="px-4 py-2 bg-brand-red border border-transparent rounded-md text-sm font-medium text-white hover:bg-rose-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         {isSubmitting ? 'Salvando...' : 'Confirmar'}

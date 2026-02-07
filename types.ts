@@ -11,6 +11,7 @@ export interface User {
     cpf: string;
     first_name: string;
     last_name: string;
+    phone?: string;
     roles: ('member' | 'teacher' | 'admin')[];
     is_blocked: boolean;
 }

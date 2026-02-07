@@ -5,16 +5,31 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elite Tênis Clube Scheduler</title>
+    <title>Agenda Elite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+            },
             colors: {
-              'brand-dark': '#111827',
+              'brand-dark': '#0F172A',
+              'brand-primary': '#F1334A',
+              'brand-secondary': '#3B82F6',
+              'brand-accent': '#F59E0B',
               'brand-red': '#EF4444',
-              'brand-bg': '#F9FAFB',
+              'brand-bg': '#F8FAFC',
+              'brand-surface': '#FFFFFF',
+            },
+            boxShadow: {
+              'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+              'card': '0 4px 16px rgba(0, 0, 0, 0.08)',
+              'hover': '0 8px 24px rgba(0, 0, 0, 0.12)',
             },
           }
         }

@@ -10,11 +10,11 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-label="Regras de Agendamento">
-            <div className="bg-white rounded-t-3xl rounded-b-xl shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
-                <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
-                    <h2 className="text-2xl font-bold text-brand-dark">Regras de Agendamento</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-red rounded" aria-label="Fechar modal">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 pb-28" role="dialog" aria-modal="true" aria-label="Regras de Agendamento">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[calc(100vh-8rem)] flex flex-col">
+                <div className="flex justify-between items-center p-5 border-b sticky top-0 bg-white z-10 rounded-t-2xl">
+                    <h2 className="text-xl font-bold text-brand-dark">Regras de Agendamento</h2>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-primary rounded" aria-label="Fechar modal">
                         <XMarkIcon className="h-6 w-6" />
                     </button>
                 </div>
