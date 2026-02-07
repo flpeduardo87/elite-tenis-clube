@@ -193,22 +193,22 @@ export const AuthPage: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-emerald-600 to-teal-700 p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-emerald-600 p-4">
             <div className="w-full max-w-md">
-                <header className="text-center mb-6">
-                    <div className="mb-4 flex justify-center">
-                        <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                <header className="text-center mb-8">
+                    <div className="mb-3 flex justify-center">
+                        <div className="bg-white p-2 rounded-xl shadow-lg">
                             <img 
                                 src="/logo-elite.png" 
-                                alt="Elite Tênis Clube" 
-                                className="w-20 h-20 object-contain"
+                                alt="Canoinhas Tênis Clube" 
+                                className="w-14 h-14 object-contain"
                             />
                         </div>
                     </div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl drop-shadow-lg">
-                       Elite Tênis Clube
+                    <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg">
+                       Canoinhas Tênis Clube
                     </h1>
-                    <p className="mt-2 text-sm text-emerald-50 font-medium">
+                    <p className="mt-1.5 text-xs text-emerald-50 font-medium">
                         {mode === 'login' ? 'Entre com sua conta' : 'Crie sua conta'}
                     </p>
                 </header>

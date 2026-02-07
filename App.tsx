@@ -590,7 +590,7 @@ const App: React.FC = () => {
             )}
 
             {/* ...existing code... */}
-            {!isInitializing && session && users.length > 0 && bookings.length > 0 && currentUser && !errorMessage && (
+            {!isInitializing && session && users.length > 0 && currentUser && !errorMessage && (
             <>
             <Header 
                 currentUser={currentUser}
