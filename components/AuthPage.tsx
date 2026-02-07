@@ -246,7 +246,7 @@ export const AuthPage: React.FC = () => {
                     <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
                         {/* Header */}
                         <div className="mb-7">
-                            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                            <h2 className="text-[22px] lg:text-3xl font-bold text-gray-800 mb-2">
                                 {mode === 'login' ? 'Bem-vindo de volta' : 'Criar Conta'}
                             </h2>
                             <p className="text-sm text-gray-600">

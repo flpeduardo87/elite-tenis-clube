@@ -29,8 +29,16 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
-  const future = bookings.filter(b => new Date(b.date) >= new Date());
-  const past = bookings.filter(b => new Date(b.date) < new Date());
+  // Função para obter data+hora da reserva para comparação precisa
+  const getBookingDateTime = (booking: Booking): Date => {
+    const [startHour, startMin] = booking.time_slot_start.split(':').map(Number);
+    const bookingDate = new Date(booking.date);
+    bookingDate.setHours(startHour, startMin, 0, 0);
+    return bookingDate;
+  };
+
+  const future = bookings.filter(b => getBookingDateTime(b) >= new Date());
+  const past = bookings.filter(b => getBookingDateTime(b) < new Date());
 
   const renderList = (list: Booking[], emptyText: string) => (
     <div className="space-y-2">
@@ -38,7 +46,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({ isOpen, onClos
       {list.map(b => {
         const dateStr = format(new Date(b.date), 'dd/MM/yyyy');
         const isOwner = b.member_id === currentUser.cpf || b.opponent_id === currentUser.cpf;
-        const canCancel = isOwner && new Date(b.date) >= new Date();
+        const canCancel = isOwner && getBookingDateTime(b) >= new Date();
         return (
           <div key={b.id} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200 text-sm">
             <div className="flex flex-col">
