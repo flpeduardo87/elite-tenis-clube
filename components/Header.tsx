@@ -237,7 +237,7 @@ export const Header: React.FC<HeaderProps> = ({
                                     <div className="border-t border-gray-100 my-1.5"></div>
                                     <button
                                         onClick={() => { onLogout(); setIsUserMenuOpen(false); }}
-                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-[#EF001D] hover:bg-red-50 flex items-center transition-colors"
                                     >
                                         <LogoutIcon className="h-5 w-5 mr-3" />
                                         Sair (Logout)

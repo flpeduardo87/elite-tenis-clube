@@ -582,7 +582,7 @@ const App: React.FC = () => {
                     
                     <button
                         onClick={handleLogout}
-                        className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-md"
+                        className="px-6 py-2.5 bg-[#EF001D] hover:bg-[#C90018] text-white font-semibold rounded-xl transition-colors shadow-md"
                     >
                         Sair e Tentar Novamente
                     </button>

@@ -122,7 +122,7 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                         <button
                                             onClick={() => onToggleBlock(user.cpf)}
                                             className={`inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white ${
-                                                user.is_blocked ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                                                user.is_blocked ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-[#EF001D] hover:bg-[#C90018] focus:ring-[#EF001D]'
                                             } focus:outline-none focus:ring-2 focus:ring-offset-2`}
                                         >
                                             {user.is_blocked ? 'Desbloquear' : 'Bloquear'}

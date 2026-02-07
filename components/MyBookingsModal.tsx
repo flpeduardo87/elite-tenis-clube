@@ -57,7 +57,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({ isOpen, onClos
             {canCancel && (
               <button
                 onClick={() => onCancelBooking(b.id)}
-                className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                className="text-xs px-2 py-1 bg-[#EF001D] text-white rounded hover:bg-[#C90018]"
               >Cancelar</button>
             )}
           </div>
