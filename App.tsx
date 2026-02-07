@@ -575,10 +575,17 @@ const App: React.FC = () => {
 
             {/* Painel de erro detalhado */}
             {!isInitializing && session && errorMessage && (
-                <div className="p-8">
+                <div className="p-8 max-w-2xl mx-auto">
                     <h2 className="text-lg font-bold mb-2 text-red-700">Erro ao carregar dados</h2>
                     <div className="bg-red-100 p-4 rounded text-sm text-red-800 mb-4">{errorMessage}</div>
-                    <div className="mt-4 text-red-600">Verifique as variáveis de ambiente, credenciais do Supabase, autenticação do usuário e se há dados nas tabelas.</div>
+                    <div className="mt-4 text-red-600 mb-6">Verifique as variáveis de ambiente, credenciais do Supabase, autenticação do usuário e se há dados nas tabelas.</div>
+                    
+                    <button
+                        onClick={handleLogout}
+                        className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-md"
+                    >
+                        Sair e Tentar Novamente
+                    </button>
                 </div>
             )}
 
