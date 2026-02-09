@@ -261,7 +261,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pb-28 overflow-y-auto pt-16">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pb-28 pt-16">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mt-0 max-h-[calc(100vh-8rem)] flex flex-col">
                 <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
                     <h2 className="text-xl font-bold text-brand-dark">Painel do Administrador</h2>
