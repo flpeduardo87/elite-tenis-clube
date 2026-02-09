@@ -211,9 +211,55 @@ const App: React.FC = () => {
     const handleConfirmBooking = async (details: { opponentId: string, gameType: GameType }): Promise<{ success: boolean; error?: string }> => {
         if (!selectedSlot || !currentUser) return { success: false, error: 'Seleção inválida' };
 
+        const bookingDate = selectedSlot.date.toISOString().split('T')[0];
+        const bookingTime = selectedSlot.timeSlot.start;
+        
+        // Verificar se é horário de última hora (menos de 2 horas antes)
+        const now = new Date();
+        const [hours, minutes] = bookingTime.split(':').map(Number);
+        const bookingDateTime = new Date(selectedSlot.date);
+        bookingDateTime.setHours(hours, minutes, 0, 0);
+        const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const isLastMinute = hoursUntilBooking < 2 && hoursUntilBooking > 0;
+        
+        // Se NÃO é última hora, aplicar restrições
+        if (!isLastMinute) {
+            // Contar agendamentos do usuário no mesmo dia
+            const userBookingsToday = bookings.filter(b => 
+                b.member_id === currentUser.cpf && 
+                b.date === bookingDate &&
+                b.status === 'active'
+            );
+            
+            if (userBookingsToday.length >= 1) {
+                return { 
+                    success: false, 
+                    error: 'Você já possui 1 agendamento neste dia. Limite: 1 por dia (exceto horários de última hora).' 
+                };
+            }
+            
+            // Contar agendamentos do usuário na semana (segunda a domingo)
+            const weekStart = startOfWeek(selectedSlot.date, { weekStartsOn: 1 });
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const userBookingsThisWeek = bookings.filter(b => {
+                if (b.member_id !== currentUser.cpf || b.status !== 'active') return false;
+                const bookingDateObj = new Date(b.date + 'T00:00:00');
+                return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
+            });
+            
+            if (userBookingsThisWeek.length >= 2) {
+                return { 
+                    success: false, 
+                    error: 'Você já possui 2 agendamentos nesta semana. Limite: 2 por semana (exceto horários de última hora).' 
+                };
+            }
+        }
+
         const newBooking: Omit<Booking, 'id' | 'created_at'> = {
             court_id: selectedSlot.courtId,
-            date: selectedSlot.date.toISOString().split('T')[0],
+            date: bookingDate,
             time_slot_start: selectedSlot.timeSlot.start,
             time_slot_end: selectedSlot.timeSlot.end,
             member_id: currentUser.cpf,
@@ -555,7 +601,7 @@ const App: React.FC = () => {
             {!isInitializing && session && <TopNav onLogoClick={() => setInitialCourtTypeSelected(false)} />}
             
             {/* Main Content com padding para os menus fixos */}
-            <div className={`${!isInitializing && session ? 'pt-20 sm:pt-28 pb-72 sm:pb-80' : ''} p-4 sm:p-6 md:p-8 max-w-screen-2xl mx-auto font-sans`}>
+            <div className={`${!isInitializing && session ? 'pt-20 sm:pt-28 pb-20 sm:pb-24' : ''} p-4 sm:p-6 md:p-8 max-w-screen-2xl mx-auto font-sans`}>
             {/* Mostrar loading enquanto inicializa */}
             {isInitializing && (
                 <div className="flex items-center justify-center min-h-[60vh]">
@@ -611,7 +657,7 @@ const App: React.FC = () => {
                 <WeekNavigator currentDate={currentDate} onPreviousWeek={handlePreviousWeek} onNextWeek={handleNextWeek} onToday={handleToday} />
 
                 {/* Mobile: Carousel (one day at a time) */}
-                <div className="block md:hidden mt-6 pb-20">
+                <div className="block md:hidden mt-6 pb-6">
                     <div className="flex items-center justify-between mb-4 bg-white p-3 rounded-xl shadow-soft">
                         <button
                             onClick={() => setActiveMobileDay(i => Math.max(0, i - 1))}

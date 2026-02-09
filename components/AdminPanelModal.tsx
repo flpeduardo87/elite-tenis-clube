@@ -112,7 +112,7 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                 )}
                             </div>
                                 <div className="flex items-center space-x-2 w-full sm:w-auto justify-between">
-                                <div className="flex items-center space-x-2">
+                                <div className="flex flex-wrap items-center gap-1.5">
                                     {user.is_blocked && (
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                             Bloqueado
@@ -121,17 +121,17 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                     {canBlock && (
                                         <button
                                             onClick={() => onToggleBlock(user.cpf)}
-                                            className={`inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white ${
+                                            className={`inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-white ${
                                                 user.is_blocked ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-[#EF001D] hover:bg-[#C90018] focus:ring-[#EF001D]'
                                             } focus:outline-none focus:ring-2 focus:ring-offset-2`}
                                         >
-                                            {user.is_blocked ? 'Desbloquear' : 'Bloquear'}
+                                            {user.is_blocked ? 'Ativar' : 'Bloquear'}
                                         </button>
                                     )}
                                     {canBlock && !isEditing && (
                                         <button
                                             onClick={() => { setEditingCpf(user.cpf); setEditFirstName(user.first_name); setEditLastName(user.last_name); setEditError(null); }}
-                                            className="inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                            className="inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                         >Editar
                                         </button>
                                     )}
@@ -153,11 +153,11 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                                     }
                                                 }}
                                                 disabled={editLoading}
-                                                className="inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
+                                                className="inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
                                             >{editLoading ? 'Salvando...' : 'Salvar'}</button>
                                             <button
                                                 onClick={() => { setEditingCpf(null); setEditError(null); }}
-                                                className="inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                                                className="inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                                             >Cancelar</button>
                                         </>
                                     )}
@@ -169,7 +169,7 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                                         await onDeleteUser(user.cpf);
                                                     }
                                                 }}
-                                                className="inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                                className="inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                                             >Excluir</button>
                                             <button
                                                 onClick={async () => {
@@ -180,14 +180,14 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                                         alert(result.error || 'Erro ao resetar senha');
                                                     }
                                                 }}
-                                                className="inline-flex items-center shadow-sm px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                            >Resetar Senha</button>
+                                                className="inline-flex items-center shadow-sm px-2 py-1 border border-transparent text-[10px] sm:text-xs leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            >Resetar</button>
                                         </>
                                     )}
                                 </div>
                                 {canToggleRoles && (
                                     <div className="flex flex-col space-y-2 border-l pl-4">
-                                        <label className="flex items-center text-sm cursor-pointer">
+                                        <label className="flex items-center text-[10px] sm:text-sm cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={user.roles.includes('teacher')}
@@ -197,7 +197,7 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
                                             <span className="ml-2 text-gray-700">Professor</span>
                                         </label>
                                         {isAdmin && (
-                                            <label className="flex items-center text-sm cursor-pointer">
+                                            <label className="flex items-center text-[10px] sm:text-sm cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     checked={user.roles.includes('admin')}
@@ -261,8 +261,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 pb-28 overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl my-8 max-h-[calc(100vh-8rem)] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pb-28 overflow-y-auto pt-16">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mt-0 max-h-[calc(100vh-8rem)] flex flex-col">
                 <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
                     <h2 className="text-xl font-bold text-brand-dark">Painel do Administrador</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">

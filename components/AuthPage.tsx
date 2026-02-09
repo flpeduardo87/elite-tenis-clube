@@ -131,6 +131,14 @@ export const AuthPage: React.FC = () => {
             const { data: authData, error: signUpError } = await supabase.auth.signUp({
                 email: email,
                 password: registerPassword,
+                options: {
+                    data: {
+                        cpf: cpfNumbers,
+                        first_name: firstName.trim(),
+                        last_name: lastName.trim(),
+                        phone: phoneNumbers
+                    }
+                }
             });
             
             if (signUpError) {
@@ -145,18 +153,22 @@ export const AuthPage: React.FC = () => {
                 return;
             }
             
-            // Criar perfil
+            // Aguardar um pouco para o trigger criar o perfil
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Atualizar/garantir perfil com dados corretos (caso o trigger não tenha funcionado)
             const { error: profileError } = await supabase
                 .from('profiles')
-                .insert({
+                .upsert({
                     id: authData.user.id,
                     cpf: cpfNumbers,
                     first_name: firstName.trim(),
                     last_name: lastName.trim(),
                     phone: phoneNumbers,
                     roles: ['member'],
-                    is_blocked: false,
-                    must_reset_password: false
+                    is_blocked: false
+                }, {
+                    onConflict: 'id'
                 });
             
             if (profileError) {
