@@ -214,6 +214,27 @@ const App: React.FC = () => {
         const bookingDate = selectedSlot.date.toISOString().split('T')[0];
         const bookingTime = selectedSlot.timeSlot.start;
         
+        // VERIFICAR CONFLITO: Usuário ou oponente já agendado no mesmo horário
+        const conflictingBookings = bookings.filter(b => 
+            b.date === bookingDate &&
+            b.time_slot_start === bookingTime &&
+            b.status === 'active' &&
+            (b.member_id === currentUser.cpf || b.opponent_id === currentUser.cpf ||
+             (details.opponentId && (b.member_id === details.opponentId || b.opponent_id === details.opponentId)))
+        );
+        
+        if (conflictingBookings.length > 0) {
+            const conflict = conflictingBookings[0];
+            const conflictUser = conflict.member_id === currentUser.cpf || conflict.opponent_id === currentUser.cpf 
+                ? 'Você' 
+                : usersMap.get(details.opponentId)?.first_name || 'O oponente';
+            
+            return { 
+                success: false, 
+                error: `${conflictUser} já possui um agendamento neste horário (${bookingTime}). Uma pessoa não pode jogar em 2 quadras ao mesmo tempo.` 
+            };
+        }
+        
         // Verificar se é horário de última hora (menos de 2 horas antes)
         const now = new Date();
         const [hours, minutes] = bookingTime.split(':').map(Number);
@@ -222,38 +243,122 @@ const App: React.FC = () => {
         const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
         const isLastMinute = hoursUntilBooking < 2 && hoursUntilBooking > 0;
         
-        // Se NÃO é última hora, aplicar restrições
-        if (!isLastMinute) {
-            // Contar agendamentos do usuário no mesmo dia
-            const userBookingsToday = bookings.filter(b => 
-                b.member_id === currentUser.cpf && 
-                b.date === bookingDate &&
-                b.status === 'active'
-            );
-            
-            if (userBookingsToday.length >= 1) {
-                return { 
-                    success: false, 
-                    error: 'Você já possui 1 agendamento neste dia. Limite: 1 por dia (exceto horários de última hora).' 
-                };
+        // Determinar se é Beach Tennis (quadras 3-4) ou Tênis regular (quadras 1-2)
+        const isBeachTennis = selectedSlot.courtId === 3 || selectedSlot.courtId === 4;
+        
+        if (isBeachTennis) {
+            // ========== REGRAS BEACH TENNIS ==========
+            // Se NÃO é última hora, aplicar restrições do beach
+            if (!isLastMinute) {
+                const bookingDayOfWeek = getDay(selectedSlot.date);
+                const isWeekendBooking = bookingDayOfWeek === 0 || bookingDayOfWeek === 6; // Domingo ou Sábado
+                
+                // Verificar se a janela de agendamento está aberta
+                const bookingWeekStart = startOfWeek(selectedSlot.date, { weekStartsOn: 1 });
+                const currentWeekStart = startOfWeek(now, { weekStartsOn: 1 });
+                const isSameWeek = bookingWeekStart.getTime() === currentWeekStart.getTime();
+                
+                if (isSameWeek) {
+                    if (isWeekendBooking) {
+                        // Agendamentos de Sábado/Domingo abrem na Quinta 09:00
+                        const thisWeekThursday = addDays(currentWeekStart, 3); // Quinta-feira desta semana
+                        const thursdayReleaseTime = set(thisWeekThursday, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+                        
+                        if (now < thursdayReleaseTime) {
+                            return {
+                                success: false,
+                                error: 'Agendamentos de Beach Tennis para Sábado/Domingo abrem na Quinta-feira às 09:00.'
+                            };
+                        }
+                    } else if (bookingDayOfWeek >= 2 && bookingDayOfWeek <= 5) {
+                        // Agendamentos de Terça-Sexta abrem na Segunda 09:00
+                        const mondayReleaseTime = set(currentWeekStart, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+                        
+                        if (now < mondayReleaseTime) {
+                            return {
+                                success: false,
+                                error: 'Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 09:00.'
+                            };
+                        }
+                    }
+                }
+                
+                // Contar agendamentos de beach da semana (separando dias úteis de fim de semana)
+                const weekStart = startOfWeek(selectedSlot.date, { weekStartsOn: 1 });
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+                
+                const userBeachBookingsThisWeek = bookings.filter(b => {
+                    if (b.member_id !== currentUser.cpf || b.status !== 'active') return false;
+                    // Filtrar apenas agendamentos de beach (quadras 3-4)
+                    if (b.court_id !== 3 && b.court_id !== 4) return false;
+                    const bookingDateObj = new Date(b.date + 'T00:00:00');
+                    return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
+                });
+                
+                // Separar por tipo de dia
+                const weekdayBookings = userBeachBookingsThisWeek.filter(b => {
+                    const day = getDay(new Date(b.date + 'T00:00:00'));
+                    return day >= 2 && day <= 5; // Terça-Sexta
+                });
+                
+                const weekendBookings = userBeachBookingsThisWeek.filter(b => {
+                    const day = getDay(new Date(b.date + 'T00:00:00'));
+                    return day === 0 || day === 6; // Sábado-Domingo
+                });
+                
+                // Verificar limites
+                if (isWeekendBooking && weekendBookings.length >= 1) {
+                    return {
+                        success: false,
+                        error: 'Você já possui 1 agendamento de Beach Tennis no fim de semana. Limite: 1 por semana.'
+                    };
+                }
+                
+                if (!isWeekendBooking && weekdayBookings.length >= 1) {
+                    return {
+                        success: false,
+                        error: 'Você já possui 1 agendamento de Beach Tennis em dia útil. Limite: 1 por semana.'
+                    };
+                }
             }
-            
-            // Contar agendamentos do usuário na semana (segunda a domingo)
-            const weekStart = startOfWeek(selectedSlot.date, { weekStartsOn: 1 });
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
-            
-            const userBookingsThisWeek = bookings.filter(b => {
-                if (b.member_id !== currentUser.cpf || b.status !== 'active') return false;
-                const bookingDateObj = new Date(b.date + 'T00:00:00');
-                return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
-            });
-            
-            if (userBookingsThisWeek.length >= 2) {
-                return { 
-                    success: false, 
-                    error: 'Você já possui 2 agendamentos nesta semana. Limite: 2 por semana (exceto horários de última hora).' 
-                };
+        } else {
+            // ========== REGRAS TÊNIS REGULAR ==========
+            // Se NÃO é última hora, aplicar restrições do tênis
+            if (!isLastMinute) {
+                // Contar agendamentos do usuário no mesmo dia
+                const userBookingsToday = bookings.filter(b => 
+                    b.member_id === currentUser.cpf && 
+                    b.date === bookingDate &&
+                    b.status === 'active'
+                );
+                
+                if (userBookingsToday.length >= 1) {
+                    return { 
+                        success: false, 
+                        error: 'Você já possui 1 agendamento neste dia. Limite: 1 por dia (exceto horários de última hora).' 
+                    };
+                }
+                
+                // Contar agendamentos de tênis do usuário na semana (segunda a domingo)
+                const weekStart = startOfWeek(selectedSlot.date, { weekStartsOn: 1 });
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+                
+                const userTennisBookingsThisWeek = bookings.filter(b => {
+                    if (b.member_id !== currentUser.cpf || b.status !== 'active') return false;
+                    // Filtrar apenas agendamentos de tênis (quadras 1-2)
+                    if (b.court_id !== 1 && b.court_id !== 2) return false;
+                    const bookingDateObj = new Date(b.date + 'T00:00:00');
+                    return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
+                });
+                
+                if (userTennisBookingsThisWeek.length >= 2) {
+                    return { 
+                        success: false, 
+                        error: 'Você já possui 2 agendamentos nesta semana. Limite: 2 por semana (exceto horários de última hora).' 
+                    };
+                }
             }
         }
 

@@ -304,7 +304,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                     </nav>
                 </div>
 
-                <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-[500px]">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-[200px]">
                    {activeTab === 'manage' && (
                         <UserManagement 
                             users={users}

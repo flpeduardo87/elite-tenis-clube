@@ -171,16 +171,27 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
 
     const titleText = `${member?.first_name} ${member?.last_name} vs ${opponent?.first_name || opponent?.cpf || ''} ${opponent?.last_name || ''}`;
     const slotClasses = isPast 
-        ? `relative ${commonClasses} flex-col bg-gray-300 text-gray-600 cursor-not-allowed`
-        : `relative ${commonClasses} flex-col bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 cursor-not-allowed border-2 border-gray-300`;
+        ? `${commonClasses} flex-col bg-gray-300 text-gray-600 cursor-not-allowed`
+        : `${commonClasses} flex-col bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 cursor-not-allowed border-2 border-gray-300`;
     
     return (
-        <div className={slotClasses} title={titleText}>
-            <span className="truncate max-w-full font-semibold text-xs leading-tight">{member?.first_name || member?.cpf}</span>
-            <span className="text-gray-500 text-[8px] font-semibold my-0.5">vs</span>
-            <span className="truncate max-w-full font-semibold text-xs leading-tight">{opponent?.first_name || opponent?.cpf || ''}</span>
-            {booking.game_type === 'pyramid' && !isPast && (
-                <span className="absolute top-2 right-2 bg-gray-400 text-white text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm">P</span>
+        <div className="relative group">
+            <div className={slotClasses} title={titleText}>
+                <span className="truncate max-w-full font-semibold text-xs leading-tight">{member?.first_name || member?.cpf}</span>
+                <span className="text-gray-500 text-[8px] font-semibold my-0.5">vs</span>
+                <span className="truncate max-w-full font-semibold text-xs leading-tight">{opponent?.first_name || opponent?.cpf || ''}</span>
+                {booking.game_type === 'pyramid' && !isPast && (
+                    <span className="absolute top-2 right-2 bg-gray-400 text-white text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm">P</span>
+                )}
+            </div>
+            {canCurrentUserCancel && (
+                <button 
+                    onClick={onCancel} 
+                    className="absolute -top-2 -right-2 bg-[#EF001D] hover:bg-[#C90018] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-card hover:scale-110"
+                    aria-label="Cancelar agendamento"
+                >
+                    <XCircleIcon className="h-5 w-5" />
+                </button>
             )}
         </div>
     );

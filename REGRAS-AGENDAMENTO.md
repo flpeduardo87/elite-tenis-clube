@@ -2,6 +2,11 @@
 
 ## Limites de Agendamento
 
+### 🚫 Conflito de Horário (CRÍTICO)
+- **Ninguém pode estar em 2 quadras ao mesmo tempo**
+- Sistema verifica se você ou seu oponente já estão agendados no mesmo horário
+- Bloqueio automático se houver conflito
+
 ### 1️⃣ Limite por Dia
 - **Cada usuário pode agendar até 1 horário por dia**
 - Não é permitido fazer múltiplos agendamentos no mesmo dia
@@ -22,6 +27,11 @@ Quando faltam menos de 2 horas para o horário:
 Isso permite aproveitar horários vagos de última hora.
 
 ## Exemplos
+
+### 🚨 Cenário 0: Conflito de Horário
+- Segunda 17h Quadra 1: Luiz vs Zion
+- Segunda 17h Quadra 2: Rafael tenta agendar com Luiz
+- ❌ BLOQUEADO - Luiz já está jogando às 17h na Quadra 1
 
 ### ✅ Cenário 1: Agendamento Normal
 - Segunda 10h: Usuário agenda (1/2 da semana)
