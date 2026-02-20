@@ -1,7 +1,7 @@
 
 import type { TimeSlotInfo } from './types';
 
-export const MASTER_ADMIN_CPF = '010.184.679-71';
+export const MASTER_ADMIN_CPF = '358.350.678-28';
 
 export const WEEKDAY_TIME_SLOTS: TimeSlotInfo[] = [
     { start: '09:00', end: '10:30' },
