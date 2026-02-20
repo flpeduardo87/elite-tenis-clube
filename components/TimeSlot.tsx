@@ -27,12 +27,28 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         if (!booking || !booking.created_at || !booking.date || !booking.time_slot_start) return false;
         
         const [hours, minutes] = booking.time_slot_start.split(':').map(Number);
-        const bookingStartDateTime = set(new Date(booking.date), { hours, minutes, seconds: 0, milliseconds: 0 });
+        // Garantir que a data é criada corretamente no timezone local
+        const dateStr = booking.date.includes('T') ? booking.date.split('T')[0] : booking.date;
+        const bookingStartDateTime = set(new Date(dateStr + 'T00:00:00'), { hours, minutes, seconds: 0, milliseconds: 0 });
         const createdAtDateTime = new Date(booking.created_at);
         
         const hoursDifference = (bookingStartDateTime.getTime() - createdAtDateTime.getTime()) / (1000 * 60 * 60);
+        
+        // Debug log temporário
+        if (booking.member_id === currentUser.cpf || booking.opponent_id === currentUser.cpf) {
+            console.log('🔍 Verificando Quadra Livre:', {
+                date: booking.date,
+                time: booking.time_slot_start,
+                bookingStartDateTime: bookingStartDateTime.toISOString(),
+                createdAt: booking.created_at,
+                createdAtDateTime: createdAtDateTime.toISOString(),
+                hoursDifference: hoursDifference.toFixed(2),
+                isLastMinute: hoursDifference < 2 && hoursDifference > 0
+            });
+        }
+        
         return hoursDifference < 2 && hoursDifference > 0;
-    }, [booking]);
+    }, [booking, currentUser.cpf]);
 
     if (!booking) {
         if (isPast) {
