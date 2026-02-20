@@ -5,6 +5,7 @@ import type { User } from '../types';
 import { XMarkIcon, LockIcon } from './IconComponents';
 import { BulkUserRegistration } from './BulkUserRegistration';
 import { AddSingleUser } from './AddSingleUser';
+import { BlockCourtByDay } from './BlockCourtByDay';
 import { isMasterAdmin } from '../src/utils';
 
 interface AdminPanelModalProps {
@@ -18,6 +19,7 @@ interface AdminPanelModalProps {
     onEditUser: (cpf: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string }>;
     onDeleteUser: (cpf: string) => Promise<{ success: boolean; error?: string }>;
     onResetPassword: (cpf: string) => Promise<{ success: boolean; error?: string; tempPassword?: string }>;
+    onBlockCourt: (courtId: number, date: Date) => Promise<{ success: boolean; error?: string }>;
     currentUser: User;
 }
 
@@ -255,8 +257,8 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
 };
 
 
-export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose, users, onToggleBlock, onToggleRole, onSingleRegister, onBulkRegister, onEditUser, onDeleteUser, onResetPassword, currentUser }) => {
-    const [activeTab, setActiveTab] = useState<'manage' | 'single' | 'bulk'>('manage');
+export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose, users, onToggleBlock, onToggleRole, onSingleRegister, onBulkRegister, onEditUser, onDeleteUser, onResetPassword, onBlockCourt, currentUser }) => {
+    const [activeTab, setActiveTab] = useState<'manage' | 'single' | 'bulk' | 'block'>('manage');
 
     if (!isOpen) return null;
 
@@ -270,7 +272,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                     </button>
                 </div>
                 <div className="border-b border-gray-200 flex-shrink-0">
-                    <nav className="-mb-px flex space-x-1 sm:space-x-6 px-2 sm:px-6" aria-label="Tabs">
+                    <nav className="-mb-px flex space-x-1 sm:space-x-4 px-2 sm:px-4" aria-label="Tabs">
                         <button
                             onClick={() => setActiveTab('manage')}
                             className={`${
@@ -289,7 +291,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             } whitespace-nowrap py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm flex-1 sm:flex-none`}
                         >
-                            Cadastrar Sócio
+                            Cadastrar
                         </button>
                         <button
                            onClick={() => setActiveTab('bulk')}
@@ -300,6 +302,16 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                             } whitespace-nowrap py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm flex-1 sm:flex-none`}
                         >
                            Em Massa
+                        </button>
+                        <button
+                           onClick={() => setActiveTab('block')}
+                           className={`${
+                                activeTab === 'block'
+                                ? 'border-brand-red text-brand-red'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            } whitespace-nowrap py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm flex-1 sm:flex-none`}
+                        >
+                           🔒 Interditar
                         </button>
                     </nav>
                 </div>
@@ -321,6 +333,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                    )}
                    {activeTab === 'bulk' && (
                         <BulkUserRegistration onBulkRegister={onBulkRegister} />
+                   )}
+                   {activeTab === 'block' && (
+                        <BlockCourtByDay onBlockCourt={onBlockCourt} />
                    )}
                 </div>
                 <div className="flex justify-end p-4 bg-gray-50 rounded-b-lg flex-shrink-0">

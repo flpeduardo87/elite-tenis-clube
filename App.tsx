@@ -610,6 +610,48 @@ const App: React.FC = () => {
         await fetchAllData(session);
         return { success, failed, errors, credentials };
     };
+
+    const handleBlockCourt = async (courtId: number, date: Date): Promise<{ success: boolean; error?: string }> => {
+        try {
+            // Determina se é dia da semana ou fim de semana
+            const dayOfWeek = getDay(date);
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Domingo (0) ou Sábado (6)
+            const timeSlots = isWeekend ? WEEKEND_TIME_SLOTS : WEEKDAY_TIME_SLOTS;
+
+            // Formata a data como YYYY-MM-DD
+            const dateStr = format(date, 'yyyy-MM-dd');
+
+            // Cria array de bookings de interdição para todos os horários
+            const interdictionBookings = timeSlots.map(slot => ({
+                date: dateStr,
+                time_slot_start: slot.start,
+                court_id: courtId,
+                game_type: 'interdiction' as GameType,
+                status: 'active',
+                member_id: null,
+                opponent_id: null,
+                created_at: new Date().toISOString()
+            }));
+
+            // Insere todos os bookings de uma vez
+            const { error } = await supabase
+                .from('bookings')
+                .insert(interdictionBookings);
+
+            if (error) {
+                console.error('Erro ao interditar quadra:', error);
+                return { success: false, error: handleSupabaseError(error) };
+            }
+
+            // Recarrega os dados para atualizar a visualização
+            await fetchAllData(session);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao interditar quadra:', error);
+            return { success: false, error: error.message || 'Erro desconhecido ao interditar quadra' };
+        }
+    };
     
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -936,6 +978,7 @@ const App: React.FC = () => {
                     onEditUser={handleEditUserBasic}
                     onDeleteUser={handleDeleteUserSoft}
                     onResetPassword={handleResetUserPassword}
+                    onBlockCourt={handleBlockCourt}
                     currentUser={currentUser}
                 />
             )}
