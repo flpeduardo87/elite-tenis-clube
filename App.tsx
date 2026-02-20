@@ -356,15 +356,28 @@ const App: React.FC = () => {
                     return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
                 });
                 
-                // Separar jogos normais e pirâmide
-                const normalGames = userTennisBookingsThisWeek.filter(b => b.game_type === 'normal');
+                // Separar jogos por tipo
                 const pyramidGames = userTennisBookingsThisWeek.filter(b => b.game_type === 'pyramid');
+                const normalGames = userTennisBookingsThisWeek.filter(b => b.game_type === 'normal');
                 
-                // Verificar se está tentando agendar pirâmide
+                // Separar jogos normais por período
+                const weekdayGames = normalGames.filter(b => {
+                    const day = getDay(new Date(b.date + 'T00:00:00'));
+                    return day >= 2 && day <= 5; // Terça-Sexta
+                });
+                
+                const weekendGames = normalGames.filter(b => {
+                    const day = getDay(new Date(b.date + 'T00:00:00'));
+                    return day === 0 || day === 6; // Sábado-Domingo
+                });
+                
+                // Verificar se está tentando agendar no fim de semana
+                const bookingDayOfWeek = getDay(selectedSlot.date);
+                const isWeekendBooking = bookingDayOfWeek === 0 || bookingDayOfWeek === 6;
                 const isPyramidBooking = details.gameType === 'pyramid';
                 
                 if (isPyramidBooking) {
-                    // Limite de pirâmide: 1 por semana
+                    // Limite de pirâmide: 1 por semana (extra, não conta nos outros limites)
                     if (pyramidGames.length >= 1) {
                         return { 
                             success: false, 
@@ -372,12 +385,23 @@ const App: React.FC = () => {
                         };
                     }
                 } else {
-                    // Limite de jogos normais: 2 por semana
-                    if (normalGames.length >= 2) {
-                        return { 
-                            success: false, 
-                            error: 'Você já possui 2 agendamentos normais nesta semana. Limite: 2 por semana + 1 Pirâmide adicional (exceto horários de última hora).' 
-                        };
+                    // Verificar limites de jogos normais por período
+                    if (isWeekendBooking) {
+                        // Fim de semana: máximo 1
+                        if (weekendGames.length >= 1) {
+                            return { 
+                                success: false, 
+                                error: 'Você já possui 1 agendamento no fim de semana. Limite: 1 por fim de semana + 1 Pirâmide adicional (exceto horários de última hora).' 
+                            };
+                        }
+                    } else {
+                        // Dias úteis: máximo 2
+                        if (weekdayGames.length >= 2) {
+                            return { 
+                                success: false, 
+                                error: 'Você já possui 2 agendamentos em dias úteis. Limite: 2 por semana + 1 Pirâmide adicional (exceto horários de última hora).' 
+                            };
+                        }
                     }
                 }
             }

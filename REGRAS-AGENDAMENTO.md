@@ -12,13 +12,20 @@
 - Não é permitido fazer múltiplos agendamentos no mesmo dia
 - Vale para qualquer tipo de jogo (Normal ou Pirâmide)
 
-### 2️⃣ Limite por Semana
-- **Jogos Normais: até 2 agendamentos por semana**
-- **Jogos de Pirâmide: até 1 agendamento adicional por semana**
-- **Total possível: 3 agendamentos (2 Normais + 1 Pirâmide)**
+### 2️⃣ Limite por Semana (Tênis Regular)
+
+**Jogos Normais - Separados por Período:**
+- **Dias Úteis (Terça-Sexta):** até 2 agendamentos por semana
+- **Fim de Semana (Sábado-Domingo):** até 1 agendamento por semana
+
+**Jogos de Pirâmide:**
+- **1 agendamento adicional por semana** (extra, não conta nos limites acima)
+
+**Total possível:** 
+- Máximo: 3 jogos normais (2 úteis + 1 fim de semana) + 1 Pirâmide = **4 agendamentos por semana**
 - A semana vai de segunda-feira a domingo
 
-**Importante:** O jogo de Pirâmide NÃO conta nos 2 agendamentos normais semanais. É um slot adicional exclusivo para Pirâmide!
+**Importante:** O jogo de Pirâmide é EXTRA e NÃO conta nos limites de jogos normais. É um slot adicional exclusivo para a competição interna!
 
 ### 🕐 Exceção: Horários de Última Hora - "QUADRA LIVRE" 🎾
 
@@ -46,57 +53,61 @@ Isso permite aproveitar horários vagos de última hora.
 - Segunda 17h Quadra 2: Rafael tenta agendar com Luiz
 - ❌ BLOQUEADO - Luiz já está jogando às 17h na Quadra 1
 
-### ✅ Cenário 1: Agendamento Normal
-- Segunda 10h: Usuário agenda (1/2 da semana)
-- Quarta 14h: Usuário agenda (2/2 da semana)
-- Sexta 16h: ❌ Bloqueado - limite semanal atingido
+### ✅ Cenário 1: Agendamento Normal - Dias Úteis
+- Terça 10h: Usuário agenda (1/2 dias úteis)
+- Quarta 14h: Usuário agenda (2/2 dias úteis)
+- Quinta 16h: ❌ Bloqueado - limite de dias úteis atingido
+- Sábado 10h: ✅ LIBERADO - é fim de semana (contador separado)
 
-### ✅ Cenário 2: Última Hora - Quadra Livre
-- Segunda 10h: Usuário agenda (1/2 da semana)
-- Quarta 14h: Usuário agenda (2/2 da semana)
+### ✅ Cenário 2: Fim de Semana Separado
+- Terça 10h: Usuário agenda (1/2 dias úteis)
+- Sábado 14h: Usuário agenda (1/1 fim de semana)
+- Domingo 10h: ❌ Bloqueado - limite de fim de semana atingido
+- Quarta 16h: ✅ LIBERADO - ainda tem 1 vaga em dia útil
+
+### ✅ Cenário 3: Última Hora - Quadra Livre
+- Terça 10h: Usuário agenda (1/2 dias úteis)
+- Quarta 14h: Usuário agenda (2/2 dias úteis)
 - Sexta 18h: São 16:30 agora, horário vago! ✅ LIBERADO (quadra livre - última hora)
-- Sexta 19h: São 17:15 agora! ✅ LIBERADO (quadra livre - última hora)
+- Sábado 10h: Usuário agenda (1/1 fim de semana)
+- Domingo 19h: São 17:15 agora! ✅ LIBERADO (quadra livre - última hora)
 
-**Explicação:** Mesmo com limite semanal atingido, pode agendar horários vagos com menos de 2h de antecedência!
+**Explicação:** Mesmo com limites atingidos, pode agendar horários vagos com menos de 2h de antecedência!
 
-### ✅ Cenário 3: Mesmo Dia + Quadra Livre
+### ✅ Cenário 4: Mesmo Dia + Quadra Livre
 - Segunda 10h: Usuário agenda (já usou o limite do dia)
 - Segunda 14h: ❌ Bloqueado - limite diário atingido
 - Segunda 19h: São 17:30 agora! ✅ LIBERADO (quadra livre - última hora)
 
 **Explicação:** Mesmo tendo atingido o limite diário, pode agendar se faltar menos de 2 horas!
 
-### ✅ Cenário 4: Quadra Livre Avançado
-- Usuário já tem 2 agendamentos na semana (limite atingido)
-- Chega às 17:45 e vê que a quadra 1 das 18:00 está vaga
-- ✅ LIBERADO - Pode agendar porque faltam apenas 15 minutos!
-- Sistema mostra: "🎾 Quadra Livre! Horário com menos de 2 horas de antecedência"
+### ✅ Cenário 5: Jogos de Pirâmide (Extra)
+- Terça 10h: Usuário agenda jogo Normal (1/2 dias úteis)
+- Quarta 14h: Usuário agenda jogo Normal (2/2 dias úteis)
+- Sábado 10h: Usuário agenda jogo Normal (1/1 fim de semana)
+- Quinta 16h: Usuário tenta agendar outro Normal → ❌ BLOQUEADO - todos os limites normais atingidos
+- Quinta 16h: Usuário agenda jogo de Pirâmide → ✅ LIBERADO (slot adicional de Pirâmide)
 
-**Explicação:** A regra de "quadra livre" permite usar horários vagos de última hora sem prejudicar os limites normais.
+**Explicação:** Pirâmide tem seu próprio limite (1 por semana), independente dos jogos normais!
 
-### ✅ Cenário 5: Jogos de Pirâmide
-- Segunda 10h: Usuário agenda jogo Normal (1/2 normais)
-- Quarta 14h: Usuário agenda jogo Normal (2/2 normais)
-- Sexta 16h: Usuário tenta agendar outro jogo Normal → ❌ BLOQUEADO - limite de jogos normais atingido
-- Sexta 16h: Usuário agenda jogo de Pirâmide → ✅ LIBERADO (slot adicional de Pirâmide)
+### ✅ Cenário 6: Semana Completa
+- Terça 10h: Normal (1/2 úteis)
+- Quarta 14h: Normal (2/2 úteis)
+- Sábado 10h: Normal (1/1 fim de semana)
+- Sexta 16h: Pirâmide (1/1 pirâmide)
 
-**Explicação:** Pirâmide tem seu próprio limite (1 por semana), independente dos 2 jogos normais!
-
-### ✅ Cenário 6: Limite Máximo Semanal
-- Segunda 10h: Usuário agenda Normal (1/2 normais)
-- Terça 15h: Usuário agenda Pirâmide (1/1 pirâmide)
-- Quarta 17h: Usuário agenda Normal (2/2 normais)
-- Quinta 10h: ❌ BLOQUEADO - todos os limites atingidos (2 normais + 1 pirâmide)
-
-**Resultado:** Total de 3 agendamentos na semana = limite máximo!
+**Resultado:** Total de 4 agendamentos na semana = limite máximo!
 
 ## Mensagens de Erro
 
 ### Limite Diário
 > "Você já possui 1 agendamento neste dia. Limite: 1 por dia (exceto horários de última hora)."
 
-### Limite Semanal - Jogos Normais
-> "Você já possui 2 agendamentos normais nesta semana. Limite: 2 por semana + 1 Pirâmide adicional (exceto horários de última hora)."
+### Limite Semanal - Dias Úteis
+> "Você já possui 2 agendamentos em dias úteis. Limite: 2 por semana + 1 Pirâmide adicional (exceto horários de última hora)."
+
+### Limite Semanal - Fim de Semana
+> "Você já possui 1 agendamento no fim de semana. Limite: 1 por fim de semana + 1 Pirâmide adicional (exceto horários de última hora)."
 
 ### Limite Semanal - Jogos de Pirâmide
 > "Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por semana (independente das reservas normais)."
@@ -124,5 +135,6 @@ A agenda abre em horários específicos dependendo do dia da semana que deseja r
 - ✅ A janela de 2 horas começa a contar a partir do horário atual até o início do horário desejado
 - 🎾 **QUADRA LIVRE:** Qualquer quadra de tênis vaga com menos de 2h de antecedência pode ser agendada por qualquer usuário, independente dos limites semanais
 - ⚠️ A exceção de "quadra livre" aplica-se APENAS para TÊNIS (Quadras 1 e 2), não para Beach Tennis
-- 🏆 **PIRÂMIDE:** O jogo de Pirâmide tem limite próprio (1 por semana) e não consome os 2 slots de jogos normais
-- 📊 **LIMITE MÁXIMO:** Um usuário pode ter até 3 agendamentos por semana: 2 Normais + 1 Pirâmide (mais quadras livres de última hora ilimitadas)
+- 🏆 **PIRÂMIDE:** O jogo de Pirâmide tem limite próprio (1 por semana) e não consome os slots de jogos normais
+- 📊 **LIMITE MÁXIMO TÊNIS:** Um usuário pode ter até 4 agendamentos por semana: 2 Dias Úteis + 1 Fim de Semana + 1 Pirâmide (mais quadras livres de última hora ilimitadas)
+- 📅 **SEPARAÇÃO:** Jogos em dias úteis (terça-sexta) e fim de semana (sábado-domingo) têm contadores separados
