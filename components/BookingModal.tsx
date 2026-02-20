@@ -80,7 +80,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     const getBookingCountsForDay = useCallback((userCpf: string, forDate: Date) => {
         let tennisGamesToday = 0;
         let sandGamesToday = 0;
-        if (!userCpf) return { tennisGamesToday, sandGamesToday };
+        let pyramidGamesToday = 0;
+        if (!userCpf) return { tennisGamesToday, sandGamesToday, pyramidGamesToday };
     
         const tennisCourtIds = TENNIS_COURTS.map(c => c.id);
         const sandCourtIds = SAND_COURTS.map(c => c.id);
@@ -114,6 +115,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     
                 if (isPlayerInvolved) {
                     if (bookingCourtType === 'tennis') {
+                        if (b.game_type === 'pyramid') {
+                            pyramidGamesToday++;
+                        }
                         tennisGamesToday++;
                     } else if (bookingCourtType === 'sand') {
                         sandGamesToday++;
@@ -122,12 +126,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             }
         });
     
-        return { tennisGamesToday, sandGamesToday };
+        return { tennisGamesToday, sandGamesToday, pyramidGamesToday };
     }, [bookings]);
 
 
     const currentUserBookingCount = useMemo(() => getBookingCountsForDay(currentUser.cpf, slotInfo.date), [currentUser.cpf, slotInfo.date, getBookingCountsForDay]);
-    const opponentBookingCount = useMemo(() => selectedOpponent ? getBookingCountsForDay(selectedOpponent.cpf, slotInfo.date) : { tennisGamesToday: 0, sandGamesToday: 0 }, [selectedOpponent, slotInfo.date, getBookingCountsForDay]);
+    const opponentBookingCount = useMemo(() => selectedOpponent ? getBookingCountsForDay(selectedOpponent.cpf, slotInfo.date) : { tennisGamesToday: 0, sandGamesToday: 0, pyramidGamesToday: 0 }, [selectedOpponent, slotInfo.date, getBookingCountsForDay]);
 
     const usersForSelection = useMemo(() => {
         return allUsers.filter(user => {
@@ -154,6 +158,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         return currentUserBookingCount.sandGamesToday >= 1;
     }, [currentUserBookingCount, courtType]);
 
+    // Calcular se é horário de última hora (menos de 2 horas de antecedência)
+    const isLastMinute = useMemo(() => {
+        const now = new Date();
+        const [hours, minutes] = slotInfo.timeSlot.start.split(':').map(Number);
+        const bookingDateTime = new Date(slotInfo.date);
+        bookingDateTime.setHours(hours, minutes, 0, 0);
+        const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+        return hoursUntilBooking < 2 && hoursUntilBooking > 0;
+    }, [slotInfo.date, slotInfo.timeSlot.start]);
+
     const isOpponentOverLimit = useMemo(() => {
         return selectedOpponent ? opponentBookingCount.tennisGamesToday >= 1 : false;
     }, [opponentBookingCount, selectedOpponent]);
@@ -161,8 +175,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     const requiresOpponent = courtType === 'tennis' && (gameType === 'normal' || gameType === 'pyramid');
     
     const canConfirm = !currentUser.is_blocked &&
-        !isCurrentUserOverLimit &&
-        (!requiresOpponent || (selectedOpponent && !isOpponentOverLimit));
+        (isLastMinute || !isCurrentUserOverLimit) &&
+        (!requiresOpponent || (selectedOpponent && (isLastMinute || !isOpponentOverLimit)));
 
 
     useEffect(() => {
@@ -230,6 +244,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         <p className="text-base font-semibold text-brand-dark">{courtName}</p>
                         <p className="text-sm font-medium text-brand-dark capitalize">{format(slotInfo.date, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
                         <p className="text-sm font-medium text-brand-dark">Das {slotInfo.timeSlot.start} às {slotInfo.timeSlot.end}</p>
+                        {isLastMinute && courtType === 'tennis' && (
+                            <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-3 shadow-md">
+                                <p className="text-sm font-bold text-green-800 flex items-center gap-2">
+                                    <span className="text-xl">🎾</span>
+                                    <span>Quadra Livre!</span>
+                                </p>
+                                <p className="text-xs text-green-700 mt-1 ml-7">
+                                    Horário com menos de 2 horas de antecedência - limites não se aplicam
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {courtType === 'tennis' && (

@@ -326,11 +326,12 @@ const App: React.FC = () => {
             // ========== REGRAS TÊNIS REGULAR ==========
             // Se NÃO é última hora, aplicar restrições do tênis
             if (!isLastMinute) {
-                // Contar agendamentos do usuário no mesmo dia
+                // Contar agendamentos do usuário no mesmo dia (como membro OU adversário)
                 const userBookingsToday = bookings.filter(b => 
-                    b.member_id === currentUser.cpf && 
+                    (b.member_id === currentUser.cpf || b.opponent_id === currentUser.cpf) && 
                     b.date === bookingDate &&
-                    b.status === 'active'
+                    b.status === 'active' &&
+                    (b.court_id === 1 || b.court_id === 2)
                 );
                 
                 if (userBookingsToday.length >= 1) {
@@ -346,18 +347,38 @@ const App: React.FC = () => {
                 weekEnd.setDate(weekEnd.getDate() + 6);
                 
                 const userTennisBookingsThisWeek = bookings.filter(b => {
-                    if (b.member_id !== currentUser.cpf || b.status !== 'active') return false;
+                    if (b.status !== 'active') return false;
+                    // Verificar se usuário está envolvido (membro OU adversário)
+                    if (b.member_id !== currentUser.cpf && b.opponent_id !== currentUser.cpf) return false;
                     // Filtrar apenas agendamentos de tênis (quadras 1-2)
                     if (b.court_id !== 1 && b.court_id !== 2) return false;
                     const bookingDateObj = new Date(b.date + 'T00:00:00');
                     return bookingDateObj >= weekStart && bookingDateObj <= weekEnd;
                 });
                 
-                if (userTennisBookingsThisWeek.length >= 2) {
-                    return { 
-                        success: false, 
-                        error: 'Você já possui 2 agendamentos nesta semana. Limite: 2 por semana (exceto horários de última hora).' 
-                    };
+                // Separar jogos normais e pirâmide
+                const normalGames = userTennisBookingsThisWeek.filter(b => b.game_type === 'normal');
+                const pyramidGames = userTennisBookingsThisWeek.filter(b => b.game_type === 'pyramid');
+                
+                // Verificar se está tentando agendar pirâmide
+                const isPyramidBooking = details.gameType === 'pyramid';
+                
+                if (isPyramidBooking) {
+                    // Limite de pirâmide: 1 por semana
+                    if (pyramidGames.length >= 1) {
+                        return { 
+                            success: false, 
+                            error: 'Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por semana (independente das reservas normais).' 
+                        };
+                    }
+                } else {
+                    // Limite de jogos normais: 2 por semana
+                    if (normalGames.length >= 2) {
+                        return { 
+                            success: false, 
+                            error: 'Você já possui 2 agendamentos normais nesta semana. Limite: 2 por semana + 1 Pirâmide adicional (exceto horários de última hora).' 
+                        };
+                    }
                 }
             }
         }
