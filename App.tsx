@@ -662,9 +662,7 @@ const App: React.FC = () => {
         let areSlotsReleased = false;
         let releaseMessage: string | undefined = undefined;
 
-        if (isTeacherOrAdmin) {
-            areSlotsReleased = true;
-        } else if (isCurrentWeek) {
+        if (isCurrentWeek) {
             // Lógica para semana atual
             const mondayThisWeek = startOfWeek(today, { weekStartsOn: 1 });
             const weekdayReleaseTime = set(mondayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
@@ -722,6 +720,7 @@ const App: React.FC = () => {
                     isBookable={isBookable}
                     isPast={isPast}
                     releaseMessage={releaseMessage}
+                    isTeacherOrAdmin={isTeacherOrAdmin}
                     getBookingDetailsForSlot={getBookingDetailsForSlot}
                     onBookSlot={handleBookSlot}
                     onCancelBooking={handleCancelBooking}

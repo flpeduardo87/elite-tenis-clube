@@ -19,6 +19,7 @@ interface DayColumnProps {
     isBookable: boolean;
     isPast: boolean;
     releaseMessage?: string;
+    isTeacherOrAdmin?: boolean;
     getBookingDetailsForSlot: (date: Date, timeSlot: TimeSlotInfo, courtId: number) => Booking | undefined;
     onBookSlot: (date: Date, timeSlot: TimeSlotInfo, courtId: number) => void;
     onCancelBooking: (bookingId: string) => void;
@@ -36,6 +37,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({
     isBookable,
     isPast,
     releaseMessage,
+    isTeacherOrAdmin = false,
     getBookingDetailsForSlot,
     onBookSlot,
     onCancelBooking,
@@ -78,7 +80,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({
                         <p className="text-sm font-semibold">Agenda Fechada</p>
                         {releaseMessage && <p className="text-xs mt-2 opacity-80 leading-relaxed">{releaseMessage}</p>}
                     </div>
-                ) : !areSlotsReleased ? (
+                ) : !areSlotsReleased && !isTeacherOrAdmin ? (
                      <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2 py-8">
                         <div className="bg-gray-100 rounded-full p-4 mb-3">
                             <LockIcon className="h-8 w-8" />
@@ -88,6 +90,12 @@ export const DayColumn: React.FC<DayColumnProps> = ({
                     </div>
                 ) : (
                     <>
+                        {!areSlotsReleased && isTeacherOrAdmin && releaseMessage && (
+                            <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-2 text-center">
+                                <p className="text-xs text-amber-800 font-medium">⚠️ Agenda não liberada</p>
+                                <p className="text-[10px] text-amber-700 mt-0.5">{releaseMessage}</p>
+                            </div>
+                        )}
                         <div className="grid grid-cols-2 gap-2 text-center text-xs font-semibold text-gray-600 mb-1">
                             {courts.map(court => <span key={court.id} className="bg-gray-50 py-1.5 rounded-lg">{court.name}</span>)}
                         </div>
