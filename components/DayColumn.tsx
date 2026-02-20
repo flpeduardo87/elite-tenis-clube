@@ -18,6 +18,7 @@ interface DayColumnProps {
     areSlotsReleased: boolean;
     isBookable: boolean;
     isPast: boolean;
+    releaseMessage?: string;
     getBookingDetailsForSlot: (date: Date, timeSlot: TimeSlotInfo, courtId: number) => Booking | undefined;
     onBookSlot: (date: Date, timeSlot: TimeSlotInfo, courtId: number) => void;
     onCancelBooking: (bookingId: string) => void;
@@ -34,6 +35,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({
     areSlotsReleased,
     isBookable,
     isPast,
+    releaseMessage,
     getBookingDetailsForSlot,
     onBookSlot,
     onCancelBooking,
@@ -73,15 +75,16 @@ export const DayColumn: React.FC<DayColumnProps> = ({
                         <div className="bg-gray-100 rounded-full p-4 mb-3">
                             <LockIcon className="h-8 w-8" />
                         </div>
-                        <p className="text-sm font-semibold">Semana Futura</p>
-                         <p className="text-xs mt-1 opacity-70">Apenas na semana atual</p>
+                        <p className="text-sm font-semibold">Agenda Fechada</p>
+                        {releaseMessage && <p className="text-xs mt-2 opacity-80 leading-relaxed">{releaseMessage}</p>}
                     </div>
                 ) : !areSlotsReleased ? (
                      <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center px-2 py-8">
                         <div className="bg-gray-100 rounded-full p-4 mb-3">
                             <LockIcon className="h-8 w-8" />
                         </div>
-                        <p className="text-sm font-semibold">Aguardando Liberação</p>
+                        <p className="text-sm font-semibold">Agenda Fechada</p>
+                        {releaseMessage && <p className="text-xs mt-2 opacity-80 leading-relaxed">{releaseMessage}</p>}
                     </div>
                 ) : (
                     <>

@@ -648,24 +648,67 @@ const App: React.FC = () => {
         const isMonday = dayOfWeek === 1;
         const isPast = isBefore(endOfDay(date), startOfDay(today));
 
-        const isFutureWeek = isAfter(startOfDay(date), endOfWeek(today, { weekStartsOn: 1 }));
+        const dateWeekStart = startOfWeek(date, { weekStartsOn: 1 });
+        const todayWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+        const nextWeekStart = addWeeks(todayWeekStart, 1);
+        
+        const isCurrentWeek = isSameDay(dateWeekStart, todayWeekStart);
+        const isNextWeek = isSameDay(dateWeekStart, nextWeekStart);
+        const isFutureWeek = isAfter(startOfDay(date), endOfWeek(addWeeks(today, 1), { weekStartsOn: 1 }));
+        
+        // Permitir agendamento para semana atual e próxima semana (não semanas além)
         const isBookable = !isFutureWeek || isTeacherOrAdmin;
+        
         let areSlotsReleased = false;
-        const isCurrentWeek = isSameDay(startOfWeek(date, { weekStartsOn: 1 }), startOfWeek(today, { weekStartsOn: 1 }));
+        let releaseMessage: string | undefined = undefined;
 
-        if (isTeacherOrAdmin || !isCurrentWeek) {
+        if (isTeacherOrAdmin) {
             areSlotsReleased = true;
-        } else {
+        } else if (isCurrentWeek) {
+            // Lógica para semana atual
             const mondayThisWeek = startOfWeek(today, { weekStartsOn: 1 });
             const weekdayReleaseTime = set(mondayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
             const thursdayThisWeek = addDays(mondayThisWeek, 3);
             const weekendReleaseTime = set(thursdayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
             const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;
+            
             if (isWeekendDay) {
-                areSlotsReleased = isAfter(today, weekendReleaseTime) || isSameDay(today, weekendReleaseTime);
+                areSlotsReleased = today.getTime() >= weekendReleaseTime.getTime();
+                if (!areSlotsReleased) {
+                    releaseMessage = "Agenda do final de semana será liberada quinta às 08:00";
+                }
             } else {
-                areSlotsReleased = isAfter(today, weekdayReleaseTime) || isSameDay(today, weekdayReleaseTime);
+                areSlotsReleased = today.getTime() >= weekdayReleaseTime.getTime();
+                if (!areSlotsReleased) {
+                    releaseMessage = "Agenda da semana será liberada na segunda às 08:00";
+                }
             }
+        } else if (isNextWeek) {
+            // Lógica para próxima semana
+            const mondayNextWeek = nextWeekStart;
+            const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;
+            
+            if (isWeekendDay) {
+                // Fim de semana da próxima semana abre na quinta da semana atual
+                const thursdayThisWeek = addDays(todayWeekStart, 3);
+                const weekendReleaseTime = set(thursdayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
+                areSlotsReleased = today.getTime() >= weekendReleaseTime.getTime();
+                
+                if (!areSlotsReleased) {
+                    releaseMessage = "Agenda do final de semana será liberada quinta às 08:00";
+                }
+            } else {
+                // Dias úteis da próxima semana abrem na segunda da próxima semana
+                const mondayReleaseTime = set(mondayNextWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
+                areSlotsReleased = today.getTime() >= mondayReleaseTime.getTime();
+                
+                if (!areSlotsReleased) {
+                    releaseMessage = "Agenda da semana será liberada na segunda às 08:00";
+                }
+            }
+        } else {
+            // Semanas passadas estão sempre liberadas
+            areSlotsReleased = true;
         }
 
         return (
@@ -678,6 +721,7 @@ const App: React.FC = () => {
                     areSlotsReleased={areSlotsReleased}
                     isBookable={isBookable}
                     isPast={isPast}
+                    releaseMessage={releaseMessage}
                     getBookingDetailsForSlot={getBookingDetailsForSlot}
                     onBookSlot={handleBookSlot}
                     onCancelBooking={handleCancelBooking}
