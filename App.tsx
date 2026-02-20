@@ -673,12 +673,12 @@ const App: React.FC = () => {
             if (isWeekendDay) {
                 areSlotsReleased = today.getTime() >= weekendReleaseTime.getTime();
                 if (!areSlotsReleased) {
-                    releaseMessage = "Agenda do final de semana será liberada quinta às 08:00";
+                    releaseMessage = "Agenda do final de semana será liberada quinta-feira às 08:00";
                 }
             } else {
                 areSlotsReleased = today.getTime() >= weekdayReleaseTime.getTime();
                 if (!areSlotsReleased) {
-                    releaseMessage = "Agenda da semana será liberada na segunda às 08:00";
+                    releaseMessage = "Agenda da semana será liberada na segunda-feira às 08:00";
                 }
             }
         } else if (isNextWeek) {
@@ -693,7 +693,7 @@ const App: React.FC = () => {
                 areSlotsReleased = today.getTime() >= weekendReleaseTime.getTime();
                 
                 if (!areSlotsReleased) {
-                    releaseMessage = "Agenda do final de semana será liberada quinta às 08:00";
+                    releaseMessage = "Agenda do final de semana será liberada quinta-feira às 08:00";
                 }
             } else {
                 // Dias úteis da próxima semana abrem na segunda da próxima semana
@@ -701,7 +701,7 @@ const App: React.FC = () => {
                 areSlotsReleased = today.getTime() >= mondayReleaseTime.getTime();
                 
                 if (!areSlotsReleased) {
-                    releaseMessage = "Agenda da semana será liberada na segunda às 08:00";
+                    releaseMessage = "Agenda da semana será liberada na segunda-feira às 08:00";
                 }
             }
         } else {
