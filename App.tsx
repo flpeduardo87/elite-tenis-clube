@@ -627,24 +627,39 @@ const App: React.FC = () => {
 
             console.log('🔒 Interditando quadra:', { courtId, date: dateStr, timeSlots: timeSlots.length });
 
-            // PASSO 1: Buscar bookings existentes para esse dia/quadra
+            // PASSO 1: Remover interdições antigas desse dia/quadra (se existirem)
+            const { error: deleteError } = await supabase
+                .from('bookings')
+                .delete()
+                .eq('court_id', courtId)
+                .eq('date', dateStr)
+                .eq('game_type', 'interdiction')
+                .eq('status', 'active');
+
+            if (deleteError) {
+                console.error('Erro ao limpar interdições antigas:', deleteError);
+                // Continua mesmo com erro, pode não existir interdições antigas
+            }
+
+            // PASSO 2: Buscar bookings NORMAIS existentes para esse dia/quadra (excluindo interdições)
             const { data: existingBookings, error: fetchError } = await supabase
                 .from('bookings')
                 .select('time_slot_start')
                 .eq('court_id', courtId)
                 .eq('date', dateStr)
-                .eq('status', 'active');
+                .eq('status', 'active')
+                .neq('game_type', 'interdiction');
 
             if (fetchError) {
                 console.error('Erro ao buscar bookings existentes:', fetchError);
                 return { success: false, error: handleSupabaseError(fetchError) };
             }
 
-            // Criar set de horários já ocupados
+            // Criar set de horários já ocupados por jogos normais
             const occupiedSlots = new Set(existingBookings?.map(b => b.time_slot_start) || []);
-            console.log('⏰ Horários já ocupados:', occupiedSlots.size);
+            console.log('⏰ Horários já ocupados por jogos:', occupiedSlots.size, Array.from(occupiedSlots));
 
-            // PASSO 2: Cria array de interdições APENAS para horários livres
+            // PASSO 3: Cria array de interdições APENAS para horários livres
             const interdictionBookings = timeSlots
                 .filter(slot => !occupiedSlots.has(slot.start))
                 .map(slot => ({
@@ -663,10 +678,11 @@ const App: React.FC = () => {
             console.log('📝 Criando interdições:', interdictionBookings.length, 'slots livres');
 
             if (interdictionBookings.length === 0) {
+                console.log('✅ Todos os horários já estão ocupados');
                 return { success: true }; // Todos os horários já estão ocupados
             }
 
-            // PASSO 3: Insere todas as interdições de uma vez
+            // PASSO 4: Insere todas as interdições de uma vez
             const { error: insertError, data: insertedData } = await supabase
                 .from('bookings')
                 .insert(interdictionBookings)
