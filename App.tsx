@@ -716,10 +716,29 @@ const App: React.FC = () => {
     // Fallback removido: bloco try/catch não permitido em componentes React
 
     const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(startOfWeekDate, i)), [startOfWeekDate]);
-    const [activeMobileDay, setActiveMobileDay] = useState(0);
+    
+    // Calcula o índice do dia atual da semana (0-6, onde 0 = segunda)
+    const getCurrentDayIndex = useCallback(() => {
+        const todayDayOfWeek = getDay(today);
+        return todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1; // Domingo = 6, Segunda = 0
+    }, [today]);
+    
+    const [activeMobileDay, setActiveMobileDay] = useState(getCurrentDayIndex());
     const touchStartXRef = useRef<number | null>(null);
     const dayRefs = useRef<(HTMLDivElement | null)[]>([]);
-    useEffect(() => { setActiveMobileDay(0); }, [startOfWeekDate]);
+    
+    // Quando a semana muda, ajusta para o dia atual se estiver na semana atual, senão vai para segunda
+    useEffect(() => { 
+        const todayWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+        if (startOfWeekDate.getTime() === todayWeekStart.getTime()) {
+            // Estamos na semana atual, mostra o dia de hoje
+            setActiveMobileDay(getCurrentDayIndex());
+        } else {
+            // Outra semana, mostra segunda-feira
+            setActiveMobileDay(0);
+        }
+    }, [startOfWeekDate, today, getCurrentDayIndex]);
+    
     const isTeacherOrAdmin = currentUser && currentUser.roles.includes('teacher') || currentUser && currentUser.roles.includes('admin');
     const isMasterAdminCheck = currentUser ? isMasterAdmin(currentUser) : false;
 
