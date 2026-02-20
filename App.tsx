@@ -644,9 +644,10 @@ const App: React.FC = () => {
             
             console.log('✅ Interdições antigas removidas:', deletedCount || 0);
             
-            // Pequena espera para garantir que o delete foi propagado no Supabase
+            // Aguarda para garantir que o delete foi propagado no Supabase
             if (deletedCount && deletedCount > 0) {
-                await new Promise(resolve => setTimeout(resolve, 500));
+                console.log('⏳ Aguardando propagação completa do delete (1.5s)...');
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
 
             // PASSO 2: Buscar bookings NORMAIS existentes para esse dia/quadra (excluindo interdições)
@@ -690,18 +691,39 @@ const App: React.FC = () => {
                 return { success: true }; // Todos os horários já estão ocupados
             }
 
-            // PASSO 4: Insere todas as interdições de uma vez
-            const { error: insertError, data: insertedData } = await supabase
-                .from('bookings')
-                .insert(interdictionBookings)
-                .select();
-
-            if (insertError) {
-                console.error('❌ Erro ao criar interdições:', insertError);
-                return { success: false, error: handleSupabaseError(insertError) };
+            // PASSO 4: Insere interdições individualmente para evitar conflitos
+            let successCount = 0;
+            let failCount = 0;
+            
+            console.log('🔄 Iniciando inserção de', interdictionBookings.length, 'interdições...');
+            
+            for (let i = 0; i < interdictionBookings.length; i++) {
+                const booking = interdictionBookings[i];
+                const { error } = await supabase
+                    .from('bookings')
+                    .insert([booking]);
+                
+                if (error) {
+                    console.warn('⚠️ Erro ao inserir slot:', booking.time_slot_start, error.message);
+                    failCount++;
+                } else {
+                    successCount++;
+                    if (successCount % 3 === 0 || successCount === interdictionBookings.length) {
+                        console.log(`📊 Progresso: ${successCount}/${interdictionBookings.length}`);
+                    }
+                }
+                
+                // Pequeno delay entre inserções para evitar race conditions
+                if (i < interdictionBookings.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
             }
 
-            console.log('✅ Interdições criadas:', insertedData?.length);
+            console.log('✅ Interdições criadas:', successCount, 'de', interdictionBookings.length);
+            
+            if (failCount > 0) {
+                console.log('⚠️ Falhas:', failCount);
+            }
 
             // Recarrega os dados para atualizar a visualização
             await fetchAllData(session);
