@@ -33,20 +33,6 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         const createdAtDateTime = new Date(booking.created_at);
         
         const hoursDifference = (bookingStartDateTime.getTime() - createdAtDateTime.getTime()) / (1000 * 60 * 60);
-        
-        // Debug log temporário
-        if (booking.member_id === currentUser.cpf || booking.opponent_id === currentUser.cpf) {
-            console.log('🔍 Verificando Quadra Livre:', {
-                date: booking.date,
-                time: booking.time_slot_start,
-                bookingStartDateTime: bookingStartDateTime.toISOString(),
-                createdAt: booking.created_at,
-                createdAtDateTime: createdAtDateTime.toISOString(),
-                hoursDifference: hoursDifference.toFixed(2),
-                isLastMinute: hoursDifference < 2 && hoursDifference > 0
-            });
-        }
-        
         return hoursDifference < 2 && hoursDifference > 0;
     }, [booking, currentUser.cpf]);
 
