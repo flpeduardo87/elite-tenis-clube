@@ -157,13 +157,16 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
     if (isCurrentUserPlaying) {
         const titleText = `${member?.first_name} ${member?.last_name} vs ${opponent?.first_name || ''} ${opponent?.last_name || ''}`;
         
-        // Cores diferentes para agendamentos de última hora (Quadra Livre)
+        // Cores diferentes por tipo de jogo
         let slotClasses;
         if (isPast) {
             slotClasses = `${commonClasses} bg-gray-300 text-gray-600 cursor-not-allowed`;
         } else if (isLastMinuteBooking) {
             // Cor verde para jogos de quadra livre
             slotClasses = `${commonClasses} ${isBookedByCurrentUser ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-card' : 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-card'} text-white cursor-default flex-col`;
+        } else if (booking.game_type === 'pyramid') {
+            // Cor laranja para jogos de pirâmide
+            slotClasses = `${commonClasses} ${isBookedByCurrentUser ? 'bg-gradient-to-br from-orange-500 to-amber-600 shadow-card' : 'bg-gradient-to-br from-orange-400 to-amber-500 shadow-card'} text-white cursor-default flex-col`;
         } else {
             // Cor vermelha/rosa para jogos normais
             slotClasses = `${commonClasses} ${isBookedByCurrentUser ? 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-card' : 'bg-gradient-to-br from-rose-400 to-pink-500 shadow-card'} text-white cursor-default flex-col`;
@@ -179,7 +182,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
                     <span className="truncate max-w-full font-bold text-xs leading-tight">{isBookedByCurrentUser ? (opponent?.first_name || opponent?.cpf) : 'Você'}</span>
                 </div>
                 {booking.game_type === 'pyramid' && !isPast && (
-                    <span className={`absolute top-2 ${isLastMinuteBooking ? 'right-8' : 'right-2'} ${isLastMinuteBooking ? 'bg-white text-green-600' : 'bg-white text-rose-600'} text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm`}>P</span>
+                    <span className={`absolute top-2 ${isLastMinuteBooking ? 'right-8' : 'right-2'} ${isLastMinuteBooking ? 'bg-white text-green-600' : 'bg-white text-orange-600'} text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm`}>P</span>
                 )}
                 {isLastMinuteBooking && !isPast && (
                     <span className="absolute top-2 right-2 bg-white text-green-600 text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm" title="Quadra Livre (<2h)">
@@ -201,15 +204,18 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
 
     const titleText = `${member?.first_name} ${member?.last_name} vs ${opponent?.first_name || opponent?.cpf || ''} ${opponent?.last_name || ''}`;
     
-    // Cores diferentes para agendamentos de última hora (Quadra Livre)
+    // Cores diferentes por tipo de jogo (outros jogadores)
     let slotClasses;
     if (isPast) {
         slotClasses = `${commonClasses} flex-col bg-gray-300 text-gray-600 cursor-not-allowed`;
     } else if (isLastMinuteBooking) {
-        // Cor verde claro para jogos de quadra livre (outros jogadores)
+        // Cor verde claro para jogos de quadra livre
         slotClasses = `${commonClasses} flex-col bg-gradient-to-br from-green-100 to-emerald-200 text-green-800 cursor-not-allowed border-2 border-green-300`;
+    } else if (booking.game_type === 'pyramid') {
+        // Cor laranja claro para jogos de pirâmide
+        slotClasses = `${commonClasses} flex-col bg-gradient-to-br from-orange-100 to-amber-200 text-orange-800 cursor-not-allowed border-2 border-orange-300`;
     } else {
-        // Cor cinza para jogos normais (outros jogadores)
+        // Cor cinza para jogos normais
         slotClasses = `${commonClasses} flex-col bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 cursor-not-allowed border-2 border-gray-300`;
     }
     
@@ -217,10 +223,10 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({ timeSlot, booking, isPast, c
         <div className="relative group">
             <div className={slotClasses} title={titleText}>
                 <span className="truncate max-w-full font-semibold text-xs leading-tight">{member?.first_name || member?.cpf}</span>
-                <span className={`${isLastMinuteBooking ? 'text-green-600' : 'text-gray-500'} text-[8px] font-semibold my-0.5`}>vs</span>
+                <span className={`${isLastMinuteBooking ? 'text-green-600' : booking.game_type === 'pyramid' ? 'text-orange-600' : 'text-gray-500'} text-[8px] font-semibold my-0.5`}>vs</span>
                 <span className="truncate max-w-full font-semibold text-xs leading-tight">{opponent?.first_name || opponent?.cpf || ''}</span>
                 {booking.game_type === 'pyramid' && !isPast && (
-                    <span className={`absolute top-2 ${isLastMinuteBooking ? 'right-8' : 'right-2'} ${isLastMinuteBooking ? 'bg-white text-green-600' : 'bg-gray-400 text-white'} text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm`}>P</span>
+                    <span className={`absolute top-2 ${isLastMinuteBooking ? 'right-8' : 'right-2'} ${isLastMinuteBooking ? 'bg-white text-green-600' : 'bg-white text-orange-600'} text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center pointer-events-none shadow-sm`}>P</span>
                 )}
             </div>
             {isLastMinuteBooking && !isPast && (
