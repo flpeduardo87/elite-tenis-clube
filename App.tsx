@@ -687,9 +687,9 @@ const App: React.FC = () => {
             const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;
             
             if (isWeekendDay) {
-                // Fim de semana da próxima semana abre na quinta da semana atual
-                const thursdayThisWeek = addDays(todayWeekStart, 3);
-                const weekendReleaseTime = set(thursdayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
+                // Fim de semana da próxima semana abre na quinta DA PRÓXIMA SEMANA
+                const thursdayNextWeek = addDays(nextWeekStart, 3);
+                const weekendReleaseTime = set(thursdayNextWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
                 areSlotsReleased = today.getTime() >= weekendReleaseTime.getTime();
                 
                 if (!areSlotsReleased) {
