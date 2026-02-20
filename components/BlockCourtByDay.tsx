@@ -161,7 +161,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto w-full overflow-x-hidden px-2">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                 <h3 className="text-sm font-semibold text-amber-900 mb-2">ℹ️ Como funciona</h3>
                 <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
@@ -192,7 +192,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
+                    <div className="min-w-0">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Data Inicial *
                         </label>
@@ -201,11 +201,11 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             required
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red"
+                            className="block w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red text-sm"
                         />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Data Final (opcional)
                         </label>
@@ -214,7 +214,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             min={startDate}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red"
+                            className="block w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red text-sm"
                         />
                         <p className="text-xs text-gray-500 mt-1">
                             Deixe em branco para interditar apenas 1 dia
@@ -281,7 +281,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
+                    <div className="min-w-0">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Data Inicial *
                         </label>
@@ -290,11 +290,11 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                             value={unblockStartDate}
                             onChange={(e) => setUnblockStartDate(e.target.value)}
                             required
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                            className="block w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm"
                         />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Data Final (opcional)
                         </label>
@@ -303,7 +303,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                             value={unblockEndDate}
                             onChange={(e) => setUnblockEndDate(e.target.value)}
                             min={unblockStartDate}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                            className="block w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm"
                         />
                         <p className="text-xs text-gray-500 mt-1">
                             Deixe em branco para liberar apenas 1 dia
