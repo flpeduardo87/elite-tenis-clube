@@ -628,17 +628,25 @@ const App: React.FC = () => {
             console.log('🔒 Interditando quadra:', { courtId, date: dateStr, timeSlots: timeSlots.length });
 
             // PASSO 1: Remover interdições antigas desse dia/quadra (se existirem)
-            const { error: deleteError } = await supabase
+            console.log('🧹 Removendo interdições antigas...');
+            const { error: deleteError, count: deletedCount } = await supabase
                 .from('bookings')
-                .delete()
+                .delete({ count: 'exact' })
                 .eq('court_id', courtId)
                 .eq('date', dateStr)
                 .eq('game_type', 'interdiction')
                 .eq('status', 'active');
 
             if (deleteError) {
-                console.error('Erro ao limpar interdições antigas:', deleteError);
-                // Continua mesmo com erro, pode não existir interdições antigas
+                console.error('❌ Erro ao limpar interdições antigas:', deleteError);
+                return { success: false, error: handleSupabaseError(deleteError) };
+            }
+            
+            console.log('✅ Interdições antigas removidas:', deletedCount || 0);
+            
+            // Pequena espera para garantir que o delete foi propagado no Supabase
+            if (deletedCount && deletedCount > 0) {
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
 
             // PASSO 2: Buscar bookings NORMAIS existentes para esse dia/quadra (excluindo interdições)
