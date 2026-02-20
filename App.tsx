@@ -679,6 +679,39 @@ const App: React.FC = () => {
             return { success: false, error: error.message || 'Erro desconhecido ao interditar quadra' };
         }
     };
+
+    const handleUnblockCourt = async (courtId: number, date: Date): Promise<{ success: boolean; error?: string }> => {
+        try {
+            // Formata a data como YYYY-MM-DD
+            const dateStr = format(date, 'yyyy-MM-dd');
+
+            console.log('🔓 Removendo interdição da quadra:', { courtId, date: dateStr });
+
+            // Deleta todas as interdições desse dia/quadra
+            const { error: deleteError } = await supabase
+                .from('bookings')
+                .delete()
+                .eq('court_id', courtId)
+                .eq('date', dateStr)
+                .eq('game_type', 'interdiction')
+                .eq('status', 'active');
+
+            if (deleteError) {
+                console.error('❌ Erro ao remover interdições:', deleteError);
+                return { success: false, error: handleSupabaseError(deleteError) };
+            }
+
+            console.log('✅ Interdições removidas com sucesso');
+
+            // Recarrega os dados para atualizar a visualização
+            await fetchAllData(session);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao remover interdição:', error);
+            return { success: false, error: error.message || 'Erro desconhecido ao remover interdição' };
+        }
+    };
     
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -1025,6 +1058,7 @@ const App: React.FC = () => {
                     onDeleteUser={handleDeleteUserSoft}
                     onResetPassword={handleResetUserPassword}
                     onBlockCourt={handleBlockCourt}
+                    onUnblockCourt={handleUnblockCourt}
                     currentUser={currentUser}
                 />
             )}

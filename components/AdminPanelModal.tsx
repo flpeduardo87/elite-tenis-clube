@@ -20,6 +20,7 @@ interface AdminPanelModalProps {
     onDeleteUser: (cpf: string) => Promise<{ success: boolean; error?: string }>;
     onResetPassword: (cpf: string) => Promise<{ success: boolean; error?: string; tempPassword?: string }>;
     onBlockCourt: (courtId: number, date: Date) => Promise<{ success: boolean; error?: string }>;
+    onUnblockCourt: (courtId: number, date: Date) => Promise<{ success: boolean; error?: string }>;
     currentUser: User;
 }
 
@@ -257,7 +258,7 @@ const UserManagement: React.FC<Pick<AdminPanelModalProps, 'users' | 'onToggleBlo
 };
 
 
-export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose, users, onToggleBlock, onToggleRole, onSingleRegister, onBulkRegister, onEditUser, onDeleteUser, onResetPassword, onBlockCourt, currentUser }) => {
+export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose, users, onToggleBlock, onToggleRole, onSingleRegister, onBulkRegister, onEditUser, onDeleteUser, onResetPassword, onBlockCourt, onUnblockCourt, currentUser }) => {
     const [activeTab, setActiveTab] = useState<'manage' | 'single' | 'bulk' | 'block'>('manage');
 
     if (!isOpen) return null;
@@ -335,7 +336,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
                         <BulkUserRegistration onBulkRegister={onBulkRegister} />
                    )}
                    {activeTab === 'block' && (
-                        <BlockCourtByDay onBlockCourt={onBlockCourt} />
+                        <BlockCourtByDay onBlockCourt={onBlockCourt} onUnblockCourt={onUnblockCourt} />
                    )}
                 </div>
                 <div className="flex justify-end p-4 bg-gray-50 rounded-b-lg flex-shrink-0">
