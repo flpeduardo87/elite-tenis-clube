@@ -613,6 +613,10 @@ const App: React.FC = () => {
 
     const handleBlockCourt = async (courtId: number, date: Date): Promise<{ success: boolean; error?: string }> => {
         try {
+            if (!currentUser) {
+                return { success: false, error: 'Usuário não autenticado' };
+            }
+
             // Determina se é dia da semana ou fim de semana
             const dayOfWeek = getDay(date);
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Domingo (0) ou Sábado (6)
@@ -620,6 +624,8 @@ const App: React.FC = () => {
 
             // Formata a data como YYYY-MM-DD
             const dateStr = format(date, 'yyyy-MM-dd');
+
+            console.log('🔒 Interditando quadra:', { courtId, date: dateStr, timeSlots: timeSlots.length });
 
             // PASSO 1: Deletar todos os bookings existentes (normais ou interdições) para esse dia/quadra
             // Isso garante que a interdição sempre funciona, mesmo com horários já ocupados
@@ -639,23 +645,30 @@ const App: React.FC = () => {
             const interdictionBookings = timeSlots.map(slot => ({
                 date: dateStr,
                 time_slot_start: slot.start,
+                time_slot_end: slot.end,
                 court_id: courtId,
                 game_type: 'interdiction' as GameType,
                 status: 'active',
-                member_id: null,
+                member_id: currentUser.cpf,
                 opponent_id: null,
+                booked_by_id: currentUser.id,
                 created_at: new Date().toISOString()
             }));
 
+            console.log('📝 Criando interdições:', interdictionBookings.length, 'slots');
+
             // PASSO 3: Insere todas as interdições de uma vez
-            const { error: insertError } = await supabase
+            const { error: insertError, data: insertedData } = await supabase
                 .from('bookings')
-                .insert(interdictionBookings);
+                .insert(interdictionBookings)
+                .select();
 
             if (insertError) {
-                console.error('Erro ao criar interdições:', insertError);
+                console.error('❌ Erro ao criar interdições:', insertError);
                 return { success: false, error: handleSupabaseError(insertError) };
             }
+
+            console.log('✅ Interdições criadas:', insertedData?.length);
 
             // Recarrega os dados para atualizar a visualização
             await fetchAllData(session);
