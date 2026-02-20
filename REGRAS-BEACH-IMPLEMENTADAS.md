@@ -14,7 +14,7 @@
   - No sistema: `court_id = 1` e `court_id = 2`
 
 ### Horário de Funcionamento
-- **Período de manhã**: 09:00 (abertura das janelas de agendamento)
+- **Período de manhã**: 08:00 (abertura das janelas de agendamento)
 - **Funcionamento**: 09:00 às 22:00 (mesmo do tênis regular)
 
 ---
@@ -23,25 +23,25 @@
 
 ### Para Dias Úteis (Terça a Sexta)
 ```
-⏰ Abre: Segunda-feira às 09:00
+⏰ Abre: Segunda-feira às 08:00
 📅 Permite agendar: Terça, Quarta, Quinta e Sexta da mesma semana
 ```
 
 **Exemplo:**
-- ✅ Segunda 03/02/2026 09:00 → Pode agendar Terça 04/02 até Sexta 07/02
+- ✅ Segunda 03/02/2026 08:00 → Pode agendar Terça 04/02 até Sexta 07/02
 - ❌ Domingo 02/02/2026 23:59 → **BLOQUEADO**
-  - Mensagem: "Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 09:00"
+  - Mensagem: "Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 08:00"
 
 ### Para Fim de Semana (Sábado e Domingo)
 ```
-⏰ Abre: Quinta-feira às 09:00
+⏰ Abre: Quinta-feira às 08:00
 📅 Permite agendar: Sábado e Domingo da mesma semana
 ```
 
 **Exemplo:**
-- ✅ Quinta 05/02/2026 09:00 → Pode agendar Sábado 08/02 e Domingo 09/02
+- ✅ Quinta 05/02/2026 08:00 → Pode agendar Sábado 08/02 e Domingo 09/02
 - ❌ Quarta 04/02/2026 23:59 → **BLOQUEADO**
-  - Mensagem: "Agendamentos de Beach Tennis para Sábado/Domingo abrem na Quinta-feira às 09:00"
+  - Mensagem: "Agendamentos de Beach Tennis para Sábado/Domingo abrem na Quinta-feira às 08:00"
 
 ---
 
@@ -101,8 +101,8 @@ Mesmo se o usuário já tiver:
 | Aspecto | Tênis Regular | Beach Tennis |
 |---------|---------------|--------------|
 | **Quadras** | 1-2 (court_id 1-2) | 1-2 (court_id 3-4) |
-| **Janela Dias Úteis** | Segunda 09:00 | Segunda 09:00 |
-| **Janela Fim de Semana** | Sexta 10:00 | **Quinta 09:00** |
+| **Janela Dias Úteis** | Segunda 08:00 | Segunda 08:00 |
+| **Janela Fim de Semana** | Quinta 08:00 | **Quinta 08:00** |
 | **Limite Diário** | 1 por dia | Não se aplica |
 | **Limite Semanal** | 2 por semana | **1 útil + 1 FDS** |
 | **Última Hora (<2h)** | ✅ Sim | ✅ Sim |
@@ -125,8 +125,8 @@ Mesmo se o usuário já tiver:
 
 Se Beach Tennis:
   4a. Verificar se janela de agendamento está aberta
-      - Fim de semana: requer Quinta 09:00+
-      - Dias úteis: requer Segunda 09:00+
+      - Fim de semana: requer Quinta 08:00+
+      - Dias úteis: requer Segunda 08:00+
   5a. Contar agendamentos de beach da semana
   6a. Separar por tipo (úteis vs. fim de semana)
   7a. Bloquear se limite atingido
@@ -160,7 +160,7 @@ Resultado: ✅ PERMITIDO
 Hoje: Domingo 02/02/2026 23:00
 Tenta: Terça 04/02/2026 10:00 (Beach)
 Resultado: ❌ BLOQUEADO
-Mensagem: "Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 09:00"
+Mensagem: "Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 08:00"
 ```
 
 ### ❌ Cenário 3: Limite Dias Úteis

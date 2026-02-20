@@ -58,10 +58,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         if (!isCurrentWeek) return false; // Past weeks are not restricted in this sense
 
         const mondayThisWeek = startOfWeek(today, { weekStartsOn: 1 });
-        const weeklyReleaseTime = set(mondayThisWeek, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+        const weeklyReleaseTime = set(mondayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
         
         const thursdayThisWeek = addDays(mondayThisWeek, 3);
-        const weekendReleaseTime = set(thursdayThisWeek, { hours: 10, minutes: 0, seconds: 0, milliseconds: 0 });
+        const weekendReleaseTime = set(thursdayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
 
         const dayOfWeek = getDay(slotInfo.date);
         const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;

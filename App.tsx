@@ -260,24 +260,24 @@ const App: React.FC = () => {
                 
                 if (isSameWeek) {
                     if (isWeekendBooking) {
-                        // Agendamentos de Sábado/Domingo abrem na Quinta 09:00
+                        // Agendamentos de Sábado/Domingo abrem na Quinta 08:00
                         const thisWeekThursday = addDays(currentWeekStart, 3); // Quinta-feira desta semana
-                        const thursdayReleaseTime = set(thisWeekThursday, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+                        const thursdayReleaseTime = set(thisWeekThursday, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
                         
                         if (now < thursdayReleaseTime) {
                             return {
                                 success: false,
-                                error: 'Agendamentos de Beach Tennis para Sábado/Domingo abrem na Quinta-feira às 09:00.'
+                                error: 'Agendamentos de Beach Tennis para Sábado/Domingo abrem na Quinta-feira às 08:00.'
                             };
                         }
                     } else if (bookingDayOfWeek >= 2 && bookingDayOfWeek <= 5) {
-                        // Agendamentos de Terça-Sexta abrem na Segunda 09:00
-                        const mondayReleaseTime = set(currentWeekStart, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+                        // Agendamentos de Terça-Sexta abrem na Segunda 08:00
+                        const mondayReleaseTime = set(currentWeekStart, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
                         
                         if (now < mondayReleaseTime) {
                             return {
                                 success: false,
-                                error: 'Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 09:00.'
+                                error: 'Agendamentos de Beach Tennis para Terça-Sexta abrem na Segunda-feira às 08:00.'
                             };
                         }
                     }
@@ -657,9 +657,9 @@ const App: React.FC = () => {
             areSlotsReleased = true;
         } else {
             const mondayThisWeek = startOfWeek(today, { weekStartsOn: 1 });
-            const weekdayReleaseTime = set(mondayThisWeek, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
-            const fridayThisWeek = addDays(mondayThisWeek, 4);
-            const weekendReleaseTime = set(fridayThisWeek, { hours: 10, minutes: 0, seconds: 0, milliseconds: 0 });
+            const weekdayReleaseTime = set(mondayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
+            const thursdayThisWeek = addDays(mondayThisWeek, 3);
+            const weekendReleaseTime = set(thursdayThisWeek, { hours: 8, minutes: 0, seconds: 0, milliseconds: 0 });
             const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;
             if (isWeekendDay) {
                 areSlotsReleased = isAfter(today, weekendReleaseTime) || isSameDay(today, weekendReleaseTime);

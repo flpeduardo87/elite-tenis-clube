@@ -101,6 +101,22 @@ Isso permite aproveitar horários vagos de última hora.
 ### Limite Semanal - Jogos de Pirâmide
 > "Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por semana (independente das reservas normais)."
 
+## 📅 Janelas de Abertura da Agenda
+
+A agenda abre em horários específicos dependendo do dia da semana que deseja reservar:
+
+### Para Dias Úteis (Terça a Sexta)
+- **Abre:** Segunda-feira às 08:00
+- **Permite agendar:** Terça, Quarta, Quinta e Sexta da mesma semana
+- Vale para TÊNIS e BEACH TENNIS
+
+### Para Fim de Semana (Sábado e Domingo)
+- **Abre:** Quinta-feira às 08:00
+- **Permite agendar:** Sábado e Domingo da mesma semana
+- Vale para TÊNIS e BEACH TENNIS
+
+**Importante:** A exceção de horários de última hora (menos de 2 horas) continua funcionando normalmente, independente das janelas de abertura.
+
 ## Observações
 
 - ✅ Horários cancelados NÃO contam nos limites
