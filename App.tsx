@@ -627,35 +627,44 @@ const App: React.FC = () => {
 
             console.log('🔒 Interditando quadra:', { courtId, date: dateStr, timeSlots: timeSlots.length });
 
-            // PASSO 1: Deletar todos os bookings existentes (normais ou interdições) para esse dia/quadra
-            // Isso garante que a interdição sempre funciona, mesmo com horários já ocupados
-            const { error: deleteError } = await supabase
+            // PASSO 1: Buscar bookings existentes para esse dia/quadra
+            const { data: existingBookings, error: fetchError } = await supabase
                 .from('bookings')
-                .delete()
+                .select('time_slot_start')
                 .eq('court_id', courtId)
                 .eq('date', dateStr)
                 .eq('status', 'active');
 
-            if (deleteError) {
-                console.error('Erro ao limpar horários para interdição:', deleteError);
-                // Continua mesmo com erro no delete, pois pode não haver bookings
+            if (fetchError) {
+                console.error('Erro ao buscar bookings existentes:', fetchError);
+                return { success: false, error: handleSupabaseError(fetchError) };
             }
 
-            // PASSO 2: Cria array de bookings de interdição para todos os horários
-            const interdictionBookings = timeSlots.map(slot => ({
-                date: dateStr,
-                time_slot_start: slot.start,
-                time_slot_end: slot.end,
-                court_id: courtId,
-                game_type: 'interdiction' as GameType,
-                status: 'active',
-                member_id: currentUser.cpf,
-                opponent_id: null,
-                booked_by_id: currentUser.id,
-                created_at: new Date().toISOString()
-            }));
+            // Criar set de horários já ocupados
+            const occupiedSlots = new Set(existingBookings?.map(b => b.time_slot_start) || []);
+            console.log('⏰ Horários já ocupados:', occupiedSlots.size);
 
-            console.log('📝 Criando interdições:', interdictionBookings.length, 'slots');
+            // PASSO 2: Cria array de interdições APENAS para horários livres
+            const interdictionBookings = timeSlots
+                .filter(slot => !occupiedSlots.has(slot.start))
+                .map(slot => ({
+                    date: dateStr,
+                    time_slot_start: slot.start,
+                    time_slot_end: slot.end,
+                    court_id: courtId,
+                    game_type: 'interdiction' as GameType,
+                    status: 'active',
+                    member_id: currentUser.cpf,
+                    opponent_id: null,
+                    booked_by_id: currentUser.id,
+                    created_at: new Date().toISOString()
+                }));
+
+            console.log('📝 Criando interdições:', interdictionBookings.length, 'slots livres');
+
+            if (interdictionBookings.length === 0) {
+                return { success: true }; // Todos os horários já estão ocupados
+            }
 
             // PASSO 3: Insere todas as interdições de uma vez
             const { error: insertError, data: insertedData } = await supabase

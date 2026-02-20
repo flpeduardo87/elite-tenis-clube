@@ -73,7 +73,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
         if (errorCount === 0) {
             setResult({ 
                 success: true, 
-                message: `✅ ${successCount} dia(s) interditado(s) com sucesso! Todos os agendamentos existentes foram cancelados.` 
+                message: `✅ ${successCount} dia(s) interditado(s) com sucesso! Horários livres bloqueados, agendamentos existentes mantidos.` 
             });
         } else {
             setResult({ 
@@ -165,10 +165,10 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                 <h3 className="text-sm font-semibold text-amber-900 mb-2">ℹ️ Como funciona</h3>
                 <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
-                    <li>Interdita TODOS os horários do dia selecionado</li>
+                    <li>Interdita os horários LIVRES do dia selecionado</li>
                     <li>Útil para manutenção, chuva ou eventos especiais</li>
                     <li>Você pode interditar um único dia ou um período (máx 30 dias)</li>
-                    <li><strong>⚠️ Horários já agendados serão CANCELADOS automaticamente</strong></li>
+                    <li><strong>✅ Horários já agendados são MANTIDOS (não serão cancelados)</strong></li>
                     <li>Pode interditar a qualquer momento, mesmo no meio do dia</li>
                 </ul>
             </div>
@@ -258,6 +258,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt, 
                     <li>Remove a interdição e libera a quadra novamente</li>
                     <li>Útil quando a chuva passa ou manutenção termina antes do previsto</li>
                     <li>Os horários voltam a ficar disponíveis para agendamento</li>
+                    <li><strong>✅ Agendamentos normais existentes são mantidos</strong></li>
                 </ul>
             </div>
 
