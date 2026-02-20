@@ -621,7 +621,21 @@ const App: React.FC = () => {
             // Formata a data como YYYY-MM-DD
             const dateStr = format(date, 'yyyy-MM-dd');
 
-            // Cria array de bookings de interdição para todos os horários
+            // PASSO 1: Deletar todos os bookings existentes (normais ou interdições) para esse dia/quadra
+            // Isso garante que a interdição sempre funciona, mesmo com horários já ocupados
+            const { error: deleteError } = await supabase
+                .from('bookings')
+                .delete()
+                .eq('court_id', courtId)
+                .eq('date', dateStr)
+                .eq('status', 'active');
+
+            if (deleteError) {
+                console.error('Erro ao limpar horários para interdição:', deleteError);
+                // Continua mesmo com erro no delete, pois pode não haver bookings
+            }
+
+            // PASSO 2: Cria array de bookings de interdição para todos os horários
             const interdictionBookings = timeSlots.map(slot => ({
                 date: dateStr,
                 time_slot_start: slot.start,
@@ -633,14 +647,14 @@ const App: React.FC = () => {
                 created_at: new Date().toISOString()
             }));
 
-            // Insere todos os bookings de uma vez
-            const { error } = await supabase
+            // PASSO 3: Insere todas as interdições de uma vez
+            const { error: insertError } = await supabase
                 .from('bookings')
                 .insert(interdictionBookings);
 
-            if (error) {
-                console.error('Erro ao interditar quadra:', error);
-                return { success: false, error: handleSupabaseError(error) };
+            if (insertError) {
+                console.error('Erro ao criar interdições:', insertError);
+                return { success: false, error: handleSupabaseError(insertError) };
             }
 
             // Recarrega os dados para atualizar a visualização

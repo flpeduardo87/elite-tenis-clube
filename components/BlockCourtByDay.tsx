@@ -65,12 +65,12 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt }
         if (errorCount === 0) {
             setResult({ 
                 success: true, 
-                message: `✅ ${successCount} dia(s) interditado(s) com sucesso!` 
+                message: `✅ ${successCount} dia(s) interditado(s) com sucesso! Todos os agendamentos existentes foram cancelados.` 
             });
         } else {
             setResult({ 
                 success: false, 
-                message: `⚠️ ${successCount} dia(s) interditado(s), ${errorCount} erro(s). Alguns horários podem já estar reservados.` 
+                message: `⚠️ ${successCount} dia(s) interditado(s), ${errorCount} erro(s). Tente novamente ou contate o suporte.` 
             });
         }
 
@@ -92,7 +92,8 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt }
                     <li>Interdita TODOS os horários do dia selecionado</li>
                     <li>Útil para manutenção, chuva ou eventos especiais</li>
                     <li>Você pode interditar um único dia ou um período (máx 30 dias)</li>
-                    <li>Horários já reservados NÃO serão cancelados automaticamente</li>
+                    <li><strong>⚠️ Horários já agendados serão CANCELADOS automaticamente</strong></li>
+                    <li>Pode interditar a qualquer momento, mesmo no meio do dia</li>
                 </ul>
             </div>
 
@@ -123,7 +124,6 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt }
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            min={format(new Date(), 'yyyy-MM-dd')}
                             required
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red"
                         />
@@ -137,7 +137,7 @@ export const BlockCourtByDay: React.FC<BlockCourtByDayProps> = ({ onBlockCourt }
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            min={startDate || format(new Date(), 'yyyy-MM-dd')}
+                            min={startDate}
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-red focus:border-brand-red"
                         />
                         <p className="text-xs text-gray-500 mt-1">
