@@ -381,7 +381,7 @@ const App: React.FC = () => {
                     if (pyramidGames.length >= 1) {
                         return { 
                             success: false, 
-                            error: 'Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por semana (independente das reservas normais).' 
+                            error: 'Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por rodada (independente das reservas normais).' 
                         };
                     }
                 } else {

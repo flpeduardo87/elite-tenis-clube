@@ -110,7 +110,7 @@ Isso permite aproveitar horários vagos de última hora.
 > "Você já possui 1 agendamento no fim de semana. Limite: 1 por fim de semana + 1 Pirâmide adicional (exceto horários de última hora)."
 
 ### Limite Semanal - Jogos de Pirâmide
-> "Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por semana (independente das reservas normais)."
+> "Você já possui 1 jogo de Pirâmide nesta semana. Limite: 1 Pirâmide por rodada (independente das reservas normais)."
 
 ## 📅 Janelas de Abertura da Agenda
 
