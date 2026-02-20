@@ -245,12 +245,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         <p className="text-sm font-medium text-brand-dark capitalize">{format(slotInfo.date, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
                         <p className="text-sm font-medium text-brand-dark">Das {slotInfo.timeSlot.start} às {slotInfo.timeSlot.end}</p>
                         {isLastMinute && courtType === 'tennis' && (
-                            <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-3 shadow-md">
+                            <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg py-1.5 px-3 shadow-md">
                                 <p className="text-sm font-bold text-green-800 flex items-center gap-2">
                                     <span className="text-xl">🎾</span>
                                     <span>Quadra Livre!</span>
                                 </p>
-                                <p className="text-xs text-green-700 mt-1 ml-7">
+                                <p className="text-xs text-green-700 mt-0.5 ml-7">
                                     Horário com menos de 2 horas de antecedência - limites não se aplicam
                                 </p>
                             </div>
